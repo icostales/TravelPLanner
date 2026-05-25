@@ -32,6 +32,17 @@ Open `http://localhost:8080`.
 
 When the Apps Script code is updated later, edit the existing deployment and deploy a new version before testing the connection again.
 
+## Use The App On Another Device
+
+The Google Sheet stores travel data, but it does not automatically publish the TrailPlan screen. The current `file:///D:/DOCUMENTS/.../index.html` address works only on the computer that has those files.
+
+To use another phone, tablet or computer:
+
+1. Put the app files on a shared web host, such as GitHub Pages, Netlify or your own website, or copy the files to that device and open `index.html`.
+2. On the new device, open **Google Sheets Setup** and paste the same Apps Script `/exec` URL. The saved connection is browser-specific.
+3. Make sure the Apps Script web app is deployed with **Execute as: Me** and **Who has access: Anyone**.
+4. On the other device, open the `/exec` URL directly. A working deployment displays a response beginning with `{"ok":true`. If it requests a sign-in or reports access denied, fix the Apps Script deployment access and deploy a new version.
+
 The script automatically creates these sheet tabs:
 
 | Sheet | Purpose |

@@ -456,10 +456,16 @@
               <li>Create a blank Google Sheet.</li>
               <li>Open Extensions &gt; Apps Script and paste <strong>apps-script/Code.gs</strong>.</li>
               <li>Run <strong>setupSheets</strong> once and approve access.</li>
-              <li>Deploy as a web app, running as you, accessible to anyone with the link.</li>
+              <li>Deploy as a web app: <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong>.</li>
               <li>Paste the deployment URL here and click Connect.</li>
             </ol>
             <p>The script creates database tabs for Trips, Itinerary, Expenses and Packing. Keep the web app URL private because it can write to your travel data.</p>
+            <h3>Using Another Device?</h3>
+            <ol>
+              <li>Open this TrailPlan app on that device from a hosted website or a copy of the app files. A local <strong>file:///D:/...</strong> address exists only on this computer.</li>
+              <li>Paste the same Apps Script <strong>/exec</strong> URL on every device. The connection is saved per browser, not in Google Sheets.</li>
+              <li>Test the <strong>/exec</strong> URL in the other device's browser. It should display JSON starting with <strong>{"ok":true</strong>. If Google requests access or denies it, update the deployment permissions above and deploy a new version.</li>
+            </ol>
           </div>
         </div>
       </section>
@@ -847,7 +853,7 @@
         await loadData();
       } catch (error) {
         state.apiUrl = previous;
-        showNotice("setupNotice", "Connection failed. Check the deployment URL and access setting.", true);
+        showNotice("setupNotice", "Connection failed: " + error.message + " Use an /exec deployment set to Execute as Me and Who has access Anyone.", true);
       }
     }
     function switchView(id) {
