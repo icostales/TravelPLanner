@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <title>TrailPlan | Travel Planner</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --bg: #f6f5ef;
+      --card: #fffdf8;
+      --ink: #172928;
+      --muted: #637372;
+      --teal: #0f766e;
+      --teal-dark: #115e59;
+      --teal-soft: #ccfbf1;
+      --sky: #0369a1;
+      --sky-soft: #e0f2fe;
+      --sand: #f59e0b;
+      --sand-soft: #fef3c7;
+      --rose: #be123c;
+      --rose-soft: #ffe4e6;
+      --border: #e7e3d7;
+      --shadow: 0 14px 34px rgba(27, 39, 35, 0.07);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #ccfbf1 0, transparent 34%),
+        var(--bg);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button {
+      cursor: pointer;
+      border: 0;
+      transition: transform 0.12s ease, background 0.15s ease, opacity 0.12s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.5; transform: none; }
+
+    .header {
+      color: #fff;
+      background: var(--teal-dark);
+      padding: 18px max(16px, calc((100vw - 1260px) / 2));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      margin: 0 0 3px;
+      letter-spacing: -0.04em;
+    }
+    .brand small { color: #99f6e4; }
+    .connection {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      padding: 9px 13px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sand); }
+    .dot.live { background: #5eead4; }
+
+    .shell { max-width: 1260px; margin: 0 auto; padding: 20px 16px 34px; }
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .nav-btn {
+      padding: 11px 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-weight: 650;
+      color: var(--muted);
+    }
+    .nav-btn.active { color: #fff; border-color: var(--teal); background: var(--teal); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+    .card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      background: linear-gradient(125deg, #115e59, #0f766e 60%, #0891b2);
+      color: white;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .hero h2 { margin: 0 0 8px; font-size: clamp(1.45rem, 3vw, 2.1rem); }
+    .hero p { margin: 0; color: #ccfbf1; }
+    .pill {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .countdown {
+      min-width: 155px;
+      text-align: center;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.12);
+    }
+    .countdown strong { display: block; font-size: 2.2rem; line-height: 1; }
+    .countdown span { font-size: 0.85rem; color: #ccfbf1; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .stat-label { color: var(--muted); font-size: 0.88rem; margin-bottom: 7px; }
+    .stat-value { font-weight: 750; font-size: 1.6rem; letter-spacing: -0.03em; }
+    .stat-note { margin-top: 5px; font-size: 0.82rem; color: var(--muted); }
+
+    .dashboard-grid, .two-col {
+      display: grid;
+      grid-template-columns: 1fr 370px;
+      gap: 15px;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .section-title h2, .section-title h3 { margin: 0; font-size: 1.12rem; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+
+    .trip-list { display: grid; gap: 10px; }
+    .trip-card {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      border-radius: 15px;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+    .trip-card.selected { border-color: #5eead4; background: #f0fdfa; }
+    .trip-card h3 { margin: 0 0 4px; font-size: 1rem; }
+    .trip-card p { margin: 0; font-size: 0.86rem; color: var(--muted); }
+    .trip-actions { display: flex; gap: 7px; align-items: center; }
+
+    .primary, .secondary, .danger, .small-btn {
+      border-radius: 11px;
+      padding: 11px 14px;
+      font-weight: 650;
+    }
+    .small-btn { padding: 7px 10px; font-size: 0.84rem; background: var(--teal-soft); color: var(--teal-dark); }
+    .primary { color: #fff; background: var(--teal); }
+    .primary:hover { background: var(--teal-dark); }
+    .secondary { color: var(--teal-dark); background: var(--teal-soft); }
+    .danger { color: var(--rose); background: var(--rose-soft); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .span-all { grid-column: 1 / -1; }
+    .label { display: block; font-size: 0.84rem; color: var(--muted); margin-bottom: 5px; }
+    .field {
+      width: 100%;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      padding: 11px 12px;
+      background: #fff;
+    }
+    textarea.field { resize: vertical; min-height: 76px; }
+    .field:focus {
+      outline: 2px solid #5eead4;
+      border-color: var(--teal);
+    }
+    .action-row { display: flex; gap: 8px; }
+    .action-row > * { flex: 1; }
+
+    .timeline, .packing-list, .expense-list { display: grid; gap: 9px; }
+    .timeline-item, .packing-row, .expense-row {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 13px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 11px;
+    }
+    .timeline-item.done { opacity: 0.62; }
+    .date-chip {
+      text-align: center;
+      min-width: 62px;
+      padding: 7px 8px;
+      border-radius: 10px;
+      background: var(--sky-soft);
+      color: var(--sky);
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+    .item-title { font-weight: 700; display: block; margin-bottom: 3px; }
+    .tiny { display: block; color: var(--muted); font-size: 0.82rem; }
+    .badge {
+      border-radius: 999px;
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+      padding: 4px 9px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge.planning { background: var(--sand-soft); color: #92400e; }
+    .badge.completed { background: var(--sky-soft); color: var(--sky); }
+    .check {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--teal);
+    }
+
+    .budget-bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #ece8dd;
+      margin: 8px 0 18px;
+    }
+    .budget-fill { display: block; height: 100%; max-width: 100%; border-radius: inherit; background: var(--teal); }
+    .budget-fill.high { background: var(--rose); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { text-align: left; padding: 11px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; }
+    td:last-child, th:last-child { text-align: right; }
+
+    .empty {
+      border: 1px dashed var(--border);
+      border-radius: 13px;
+      color: var(--muted);
+      padding: 22px 12px;
+      text-align: center;
+    }
+    .notice {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      font-size: 0.9rem;
+    }
+    .notice.show { display: block; }
+    .notice.error { background: var(--rose-soft); color: var(--rose); }
+    .help { color: var(--muted); font-size: 0.91rem; line-height: 1.53; }
+    .help ol { padding-left: 19px; }
+    .setup-url {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .status-bar { min-height: 20px; color: var(--muted); font-size: 0.87rem; margin-top: 16px; }
+
+    @media (max-width: 980px) {
+      .dashboard-grid, .two-col { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, minmax(135px, 1fr)); }
+    }
+    @media (max-width: 580px) {
+      .header, .hero { grid-template-columns: 1fr; flex-direction: column; align-items: flex-start; }
+      .stats, .form-grid { grid-template-columns: 1fr; }
+      .trip-card { grid-template-columns: 1fr; }
+      .timeline-item, .packing-row, .expense-row { grid-template-columns: auto 1fr; }
+      .timeline-item .danger, .packing-row .danger, .expense-row .danger { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <h1>TrailPlan</h1>
+      <small>Itineraries, budget and packing in one place</small>
+    </div>
+    <div class="connection"><span class="dot" id="syncDot"></span><span id="syncLabel">Demo mode</span></div>
+  </header>
+
+  <div class="shell">
+    <nav class="nav" aria-label="Planner sections">
+      <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+      <button class="nav-btn" data-view="trips">Trips</button>
+      <button class="nav-btn" data-view="itinerary">Itinerary</button>
+      <button class="nav-btn" data-view="budget">Budget</button>
+      <button class="nav-btn" data-view="packing">Packing</button>
+      <button class="nav-btn" data-view="setup">Google Sheets Setup</button>
+    </nav>
+
+    <main>
+      <section class="view active" id="dashboard">
+        <div class="card hero" id="hero"></div>
+        <div class="stats">
+          <div class="card"><div class="stat-label">Trip budget</div><div class="stat-value" id="budgetStat">-</div><div class="stat-note" id="budgetNote"></div></div>
+          <div class="card"><div class="stat-label">Spent so far</div><div class="stat-value" id="spentStat">-</div><div class="stat-note" id="spentNote"></div></div>
+          <div class="card"><div class="stat-label">Activities</div><div class="stat-value" id="activityStat">0</div><div class="stat-note" id="activityNote"></div></div>
+          <div class="card"><div class="stat-label">Packing ready</div><div class="stat-value" id="packingStat">0%</div><div class="stat-note" id="packingNote"></div></div>
+        </div>
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="section-title"><h2>Coming Up</h2><button class="secondary" data-go="itinerary">Add activity</button></div>
+            <div class="timeline" id="upcomingRows"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h2>Your Trips</h2><button class="secondary" data-go="trips">New trip</button></div>
+            <div class="trip-list" id="dashboardTrips"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="trips">
+        <div class="two-col">
+          <div class="card">
+            <div class="section-title"><h2>All Trips</h2><span class="muted" id="tripCount"></span></div>
+            <div class="trip-list" id="tripRows"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h2 id="tripFormTitle">Plan A Trip</h2></div>
+            <form id="tripForm" class="form-grid">
+              <input type="hidden" id="tripId">
+              <label class="span-all"><span class="label">Destination</span><input id="destination" class="field" required placeholder="Kyoto, Japan"></label>
+              <label><span class="label">Start date</span><input id="startDate" class="field" type="date" required></label>
+              <label><span class="label">End date</span><input id="endDate" class="field" type="date" required></label>
+              <label><span class="label">Budget</span><input id="tripBudget" class="field" type="number" min="0" step="0.01" required></label>
+              <label><span class="label">Currency</span><select id="currency" class="field"><option>USD</option><option>PHP</option><option>EUR</option><option>JPY</option><option>GBP</option></select></label>
+              <label><span class="label">Travelers</span><input id="travelers" class="field" type="number" min="1" step="1" value="1"></label>
+              <label><span class="label">Status</span><select id="tripStatus" class="field"><option>Planning</option><option>Booked</option><option>In Progress</option><option>Completed</option></select></label>
+              <label class="span-all"><span class="label">Notes</span><textarea id="tripNotes" class="field" placeholder="Booking references, ideas, reminders"></textarea></label>
+              <button class="primary span-all" type="submit">Save Trip</button>
+              <button class="secondary span-all" type="button" id="resetTripBtn">New Trip</button>
+            </form>
+            <div class="notice" id="tripNotice"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="itinerary">
+        <div class="two-col">
+          <div class="card">
+            <div class="section-title"><h2>Itinerary</h2><span class="muted selectedTripLabel"></span></div>
+            <div class="timeline" id="itineraryRows"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h2>Add Activity</h2></div>
+            <form class="form-grid" id="itineraryForm">
+              <label><span class="label">Date</span><input id="activityDate" class="field" type="date" required></label>
+              <label><span class="label">Time</span><input id="activityTime" class="field" type="time"></label>
+              <label class="span-all"><span class="label">Activity</span><input id="activityTitle" class="field" required placeholder="Sunset walking tour"></label>
+              <label><span class="label">Location</span><input id="activityLocation" class="field" placeholder="Gion"></label>
+              <label><span class="label">Type</span><select id="activityCategory" class="field"><option>Activity</option><option>Flight</option><option>Hotel</option><option>Food</option><option>Transport</option></select></label>
+              <label class="span-all"><span class="label">Notes</span><textarea id="activityNotes" class="field"></textarea></label>
+              <button class="primary span-all" type="submit">Add To Itinerary</button>
+            </form>
+            <div class="notice" id="itineraryNotice"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="budget">
+        <div class="two-col">
+          <div class="card">
+            <div class="section-title"><h2>Expenses</h2><span class="muted selectedTripLabel"></span></div>
+            <div class="muted" id="budgetSummary"></div>
+            <div class="budget-bar"><span class="budget-fill" id="budgetFill"></span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th></th></tr></thead>
+                <tbody id="expenseRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h2>Record Expense</h2></div>
+            <form class="form-grid" id="expenseForm">
+              <label><span class="label">Date</span><input id="expenseDate" class="field" type="date" required></label>
+              <label><span class="label">Category</span><select id="expenseCategory" class="field"><option>Accommodation</option><option>Transport</option><option>Food</option><option>Activities</option><option>Shopping</option><option>Other</option></select></label>
+              <label class="span-all"><span class="label">Description</span><input id="expenseDescription" class="field" required placeholder="Train passes"></label>
+              <label class="span-all"><span class="label">Amount</span><input id="expenseAmount" class="field" type="number" min="0.01" step="0.01" required></label>
+              <button class="primary span-all" type="submit">Save Expense</button>
+            </form>
+            <div class="notice" id="expenseNotice"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="packing">
+        <div class="two-col">
+          <div class="card">
+            <div class="section-title"><h2>Packing Checklist</h2><span class="muted selectedTripLabel"></span></div>
+            <div class="packing-list" id="packingRows"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h2>Add Item</h2></div>
+            <form class="form-grid" id="packingForm">
+              <label class="span-all"><span class="label">Item</span><input id="packingItem" class="field" required placeholder="Passport"></label>
+              <label><span class="label">Category</span><select id="packingCategory" class="field"><option>Essentials</option><option>Clothing</option><option>Electronics</option><option>Toiletries</option><option>Documents</option><option>Other</option></select></label>
+              <label><span class="label">Quantity</span><input id="packingQuantity" class="field" type="number" min="1" step="1" value="1"></label>
+              <button class="primary span-all" type="submit">Add To List</button>
+            </form>
+            <div class="notice" id="packingNotice"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="setup">
+        <div class="two-col">
+          <div class="card">
+            <div class="section-title"><h2>Connect Google Sheets</h2></div>
+            <p class="help">TrailPlan uses a Google Sheet as its database through a Google Apps Script web app. Until connected, your demo plans stay in this browser only.</p>
+            <label><span class="label">Apps Script Web App URL</span></label>
+            <div class="setup-url">
+              <input class="field" id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+              <button class="primary" id="saveUrlBtn">Connect</button>
+            </div>
+            <div class="action-row">
+              <button class="secondary" id="testUrlBtn">Test Connection</button>
+              <button class="danger" id="demoBtn">Use Demo Data</button>
+            </div>
+            <div class="notice" id="setupNotice"></div>
+          </div>
+          <div class="card help">
+            <div class="section-title"><h2>Quick Setup</h2></div>
+            <ol>
+              <li>Create a blank Google Sheet.</li>
+              <li>Open Extensions &gt; Apps Script and paste <strong>apps-script/Code.gs</strong>.</li>
+              <li>Run <strong>setupSheets</strong> once and approve access.</li>
+              <li>Deploy as a web app, running as you, accessible to anyone with the link.</li>
+              <li>Paste the deployment URL here and click Connect.</li>
+            </ol>
+            <p>The script creates database tabs for Trips, Itinerary, Expenses and Packing. Keep the web app URL private because it can write to your travel data.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="status-bar" id="statusBar">Ready to plan your next trip.</div>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      apiUrl: "trailplan-api-url",
+      demoData: "trailplan-demo-data",
+      selectedTrip: "trailplan-selected-trip"
+    };
+    const byId = (id) => document.getElementById(id);
+    const today = () => new Date().toISOString().slice(0, 10);
+    const uid = (prefix) => prefix + "-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+    const escapeHtml = (value) => String(value == null ? "" : value)
+      .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+
+    function makeDemoData() {
+      return {
+        trips: [{
+          id: "TRIP-DEMO", destination: "Kyoto, Japan", startDate: "2026-10-12", endDate: "2026-10-18",
+          budget: 1800, currency: "USD", travelers: 2, status: "Planning",
+          notes: "Autumn temples and neighborhood food tour."
+        }],
+        itinerary: [
+          { id: "ACT-1", tripId: "TRIP-DEMO", date: "2026-10-12", time: "15:00", title: "Check in at machiya stay", location: "Gion", category: "Hotel", notes: "", completed: false },
+          { id: "ACT-2", tripId: "TRIP-DEMO", date: "2026-10-13", time: "08:00", title: "Fushimi Inari walk", location: "Fushimi", category: "Activity", notes: "Arrive early", completed: false }
+        ],
+        expenses: [
+          { id: "EXP-1", tripId: "TRIP-DEMO", date: "2026-10-12", category: "Accommodation", description: "Hotel deposit", amount: 420 }
+        ],
+        packing: [
+          { id: "PACK-1", tripId: "TRIP-DEMO", item: "Passport", category: "Documents", quantity: 1, packed: true },
+          { id: "PACK-2", tripId: "TRIP-DEMO", item: "Walking shoes", category: "Clothing", quantity: 1, packed: false },
+          { id: "PACK-3", tripId: "TRIP-DEMO", item: "Power adapter", category: "Electronics", quantity: 1, packed: false }
+        ]
+      };
+    }
+
+    let state = {
+      trips: [], itinerary: [], expenses: [], packing: [],
+      selectedTripId: localStorage.getItem(STORAGE_KEYS.selectedTrip) || "",
+      apiUrl: localStorage.getItem(STORAGE_KEYS.apiUrl) || "",
+      online: false
+    };
+
+    function currency(value, trip) {
+      const code = (trip && trip.currency) || "USD";
+      try {
+        return new Intl.NumberFormat(undefined, { style: "currency", currency: code }).format(Number(value || 0));
+      } catch (error) {
+        return code + " " + Number(value || 0).toFixed(2);
+      }
+    }
+    function friendlyDate(value) {
+      if (!value) return "";
+      return new Date(value + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+    function selectedTrip() {
+      return state.trips.find((trip) => trip.id === state.selectedTripId) || state.trips[0] || null;
+    }
+    function forTrip(collection) {
+      const trip = selectedTrip();
+      return trip ? state[collection].filter((item) => item.tripId === trip.id) : [];
+    }
+    function setStatus(message) { byId("statusBar").textContent = message; }
+    function showNotice(id, message, isError) {
+      const el = byId(id);
+      el.textContent = message;
+      el.className = "notice show" + (isError ? " error" : "");
+      clearTimeout(el.timer);
+      el.timer = setTimeout(() => el.classList.remove("show"), 4200);
+    }
+    function setConnection(live) {
+      state.online = live;
+      byId("syncDot").classList.toggle("live", live);
+      byId("syncLabel").textContent = live ? "Google Sheets connected" : "Demo mode";
+    }
+    function readDemoData() {
+      const stored = localStorage.getItem(STORAGE_KEYS.demoData);
+      return stored ? JSON.parse(stored) : makeDemoData();
+    }
+    function saveDemoData() {
+      localStorage.setItem(STORAGE_KEYS.demoData, JSON.stringify({
+        trips: state.trips, itinerary: state.itinerary, expenses: state.expenses, packing: state.packing
+      }));
+    }
+
+    async function request(action, payload) {
+      if (!state.apiUrl) throw new Error("No Google Sheets URL configured.");
+      return new Promise((resolve, reject) => {
+        const callback = "trailPlanCallback_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+        const params = new URLSearchParams({ action, callback });
+        if (payload) params.set("data", JSON.stringify(payload));
+        const script = document.createElement("script");
+        const timeout = setTimeout(() => { cleanup(); reject(new Error("Google Sheets connection timed out.")); }, 12000);
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[callback];
+          script.remove();
+        }
+        window[callback] = (result) => {
+          cleanup();
+          result.ok ? resolve(result) : reject(new Error(result.error || "Database error."));
+        };
+        script.onerror = () => { cleanup(); reject(new Error("Google Sheets request failed.")); };
+        script.src = state.apiUrl + "?" + params.toString();
+        document.head.appendChild(script);
+      });
+    }
+
+    async function loadData() {
+      if (!state.apiUrl) {
+        Object.assign(state, readDemoData());
+        setConnection(false);
+        ensureSelectedTrip();
+        renderAll();
+        return;
+      }
+      setStatus("Loading travel plans from Google Sheets...");
+      try {
+        const result = await request("getData");
+        state.trips = result.trips || [];
+        state.itinerary = result.itinerary || [];
+        state.expenses = result.expenses || [];
+        state.packing = result.packing || [];
+        setConnection(true);
+        setStatus("Your Google Sheets travel database is synced.");
+      } catch (error) {
+        Object.assign(state, readDemoData());
+        setConnection(false);
+        showNotice("setupNotice", "Could not connect. Showing browser demo data instead.", true);
+        setStatus(error.message);
+      }
+      ensureSelectedTrip();
+      renderAll();
+    }
+    function ensureSelectedTrip() {
+      if (!state.trips.some((trip) => trip.id === state.selectedTripId)) state.selectedTripId = state.trips[0] ? state.trips[0].id : "";
+      localStorage.setItem(STORAGE_KEYS.selectedTrip, state.selectedTripId);
+    }
+    function selectTrip(id) {
+      state.selectedTripId = id;
+      localStorage.setItem(STORAGE_KEYS.selectedTrip, id);
+      renderAll();
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderTrips();
+      renderItinerary();
+      renderBudget();
+      renderPacking();
+      const trip = selectedTrip();
+      document.querySelectorAll(".selectedTripLabel").forEach((el) => {
+        el.textContent = trip ? trip.destination : "Create a trip first";
+      });
+    }
+    function renderDashboard() {
+      const trip = selectedTrip();
+      if (!trip) {
+        byId("hero").innerHTML = '<div><h2>Start your first journey</h2><p>Create a trip to track schedule, expenses and packing.</p></div><button class="primary" data-go="trips">Plan a trip</button>';
+        ["budgetStat", "spentStat", "activityStat"].forEach((id) => byId(id).textContent = "-");
+        byId("packingStat").textContent = "0%";
+        byId("upcomingRows").innerHTML = '<div class="empty">No activities yet.</div>';
+        byId("dashboardTrips").innerHTML = '<div class="empty">No trips yet.</div>';
+        return;
+      }
+      const days = Math.ceil((new Date(trip.startDate) - new Date(today())) / 86400000);
+      const expenseTotal = forTrip("expenses").reduce((sum, item) => sum + Number(item.amount), 0);
+      const activities = forTrip("itinerary");
+      const packing = forTrip("packing");
+      const ready = packing.length ? Math.round(packing.filter((item) => item.packed).length / packing.length * 100) : 0;
+      byId("hero").innerHTML = `
+        <div><span class="pill">${escapeHtml(trip.status)}</span><h2>${escapeHtml(trip.destination)}</h2>
+        <p>${friendlyDate(trip.startDate)} - ${friendlyDate(trip.endDate)} | ${Number(trip.travelers)} traveler(s)</p></div>
+        <div class="countdown"><strong>${days > 0 ? days : days === 0 ? "Today" : "Now"}</strong><span>${days > 0 ? "days until departure" : "travel window"}</span></div>`;
+      byId("budgetStat").textContent = currency(trip.budget, trip);
+      byId("budgetNote").textContent = "Total planned";
+      byId("spentStat").textContent = currency(expenseTotal, trip);
+      byId("spentNote").textContent = currency(Math.max(0, Number(trip.budget) - expenseTotal), trip) + " remaining";
+      byId("activityStat").textContent = activities.length;
+      byId("activityNote").textContent = activities.filter((item) => item.completed).length + " completed";
+      byId("packingStat").textContent = ready + "%";
+      byId("packingNote").textContent = packing.filter((item) => item.packed).length + " of " + packing.length + " packed";
+      const upcoming = activities.slice().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).slice(0, 4);
+      byId("upcomingRows").innerHTML = upcoming.length ? upcoming.map(activityCard).join("") : '<div class="empty">Add your first activity to build the itinerary.</div>';
+      byId("dashboardTrips").innerHTML = state.trips.slice(0, 4).map((item) => tripCard(item, false)).join("");
+    }
+    function tripCard(trip, editable) {
+      const chosen = trip.id === state.selectedTripId ? " selected" : "";
+      const status = trip.status || "Planning";
+      const statusClass = status === "Planning" ? " planning" : status === "Completed" ? " completed" : "";
+      return `<article class="trip-card${chosen}">
+        <div><h3>${escapeHtml(trip.destination)}</h3><p>${friendlyDate(trip.startDate)} - ${friendlyDate(trip.endDate)} | ${currency(trip.budget, trip)}</p>
+        <span class="badge${statusClass}">${escapeHtml(status)}</span></div>
+        <div class="trip-actions"><button class="small-btn" data-select-trip="${escapeHtml(trip.id)}">${chosen ? "Selected" : "Select"}</button>${editable ? `<button class="secondary small-btn" data-edit-trip="${escapeHtml(trip.id)}">Edit</button>` : ""}</div>
+      </article>`;
+    }
+    function renderTrips() {
+      byId("tripCount").textContent = state.trips.length + " trip(s)";
+      byId("tripRows").innerHTML = state.trips.length ? state.trips.map((trip) => tripCard(trip, true)).join("") : '<div class="empty">Create a trip to start planning.</div>';
+    }
+    function activityCard(item) {
+      return `<article class="timeline-item${item.completed ? " done" : ""}">
+        <div class="date-chip">${friendlyDate(item.date).replace(", " + new Date(item.date + "T00:00:00").getFullYear(), "")}<span class="tiny">${escapeHtml(item.time || "")}</span></div>
+        <div><span class="item-title">${escapeHtml(item.title)}</span><span class="tiny">${escapeHtml(item.category)}${item.location ? " | " + escapeHtml(item.location) : ""}</span></div>
+        <button class="small-btn" data-toggle-activity="${escapeHtml(item.id)}">${item.completed ? "Undo" : "Done"}</button>
+      </article>`;
+    }
+    function renderItinerary() {
+      const rows = forTrip("itinerary").slice().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+      byId("itineraryRows").innerHTML = rows.length ? rows.map((item) => `
+        <article class="timeline-item${item.completed ? " done" : ""}">
+          <div class="date-chip">${friendlyDate(item.date).slice(0, 6)}<span class="tiny">${escapeHtml(item.time || "")}</span></div>
+          <div><span class="item-title">${escapeHtml(item.title)}</span><span class="tiny">${escapeHtml(item.category)}${item.location ? " | " + escapeHtml(item.location) : ""}</span></div>
+          <div class="action-row"><button class="small-btn" data-toggle-activity="${escapeHtml(item.id)}">${item.completed ? "Undo" : "Done"}</button><button class="danger small-btn" data-delete="itinerary" data-id="${escapeHtml(item.id)}">Delete</button></div>
+        </article>`).join("") : '<div class="empty">No itinerary entries for this trip.</div>';
+    }
+    function renderBudget() {
+      const trip = selectedTrip();
+      const expenses = forTrip("expenses").slice().sort((a, b) => b.date.localeCompare(a.date));
+      const total = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
+      const budget = Number(trip && trip.budget || 0);
+      const used = budget ? Math.round(total / budget * 100) : 0;
+      byId("budgetSummary").textContent = trip ? currency(total, trip) + " spent of " + currency(budget, trip) + " budget (" + used + "%)" : "Select a trip to track expenses.";
+      byId("budgetFill").style.width = Math.min(100, used) + "%";
+      byId("budgetFill").classList.toggle("high", used > 100);
+      byId("expenseRows").innerHTML = expenses.length ? expenses.map((item) => `
+        <tr><td>${friendlyDate(item.date)}</td><td>${escapeHtml(item.description)}</td><td>${escapeHtml(item.category)}</td>
+        <td>${currency(item.amount, trip)}</td><td><button class="danger small-btn" data-delete="expenses" data-id="${escapeHtml(item.id)}">Delete</button></td></tr>`).join("") : '<tr><td colspan="5">No expenses saved.</td></tr>';
+    }
+    function renderPacking() {
+      const packing = forTrip("packing");
+      byId("packingRows").innerHTML = packing.length ? packing.map((item) => `
+        <article class="packing-row">
+          <input class="check" type="checkbox" data-toggle-packing="${escapeHtml(item.id)}" ${item.packed ? "checked" : ""} aria-label="Packed ${escapeHtml(item.item)}">
+          <div><span class="item-title">${escapeHtml(item.item)}${Number(item.quantity) > 1 ? " x" + Number(item.quantity) : ""}</span><span class="tiny">${escapeHtml(item.category)}</span></div>
+          <button class="danger small-btn" data-delete="packing" data-id="${escapeHtml(item.id)}">Delete</button>
+        </article>`).join("") : '<div class="empty">Nothing on the packing list yet.</div>';
+    }
+
+    async function persist(action, record, localCollection) {
+      if (state.online) {
+        await request(action, record);
+        await loadData();
+        return;
+      }
+      const list = state[localCollection];
+      const existing = list.findIndex((item) => item.id === record.id);
+      if (existing >= 0) list[existing] = record; else list.unshift(record);
+      saveDemoData();
+      renderAll();
+    }
+    async function deleteRecord(collection, id) {
+      try {
+        if (state.online) {
+          await request("deleteRecord", { collection, id });
+          await loadData();
+        } else {
+          state[collection] = state[collection].filter((item) => item.id !== id);
+          saveDemoData();
+          renderAll();
+        }
+      } catch (error) {
+        setStatus(error.message);
+      }
+    }
+
+    async function saveTrip(event) {
+      event.preventDefault();
+      const trip = {
+        id: byId("tripId").value || uid("TRIP"),
+        destination: byId("destination").value.trim(),
+        startDate: byId("startDate").value,
+        endDate: byId("endDate").value,
+        budget: Number(byId("tripBudget").value),
+        currency: byId("currency").value,
+        travelers: Number(byId("travelers").value || 1),
+        status: byId("tripStatus").value,
+        notes: byId("tripNotes").value.trim()
+      };
+      if (trip.endDate < trip.startDate) {
+        showNotice("tripNotice", "End date must be after the start date.", true);
+        return;
+      }
+      try {
+        await persist("saveTrip", trip, "trips");
+        selectTrip(trip.id);
+        resetTripForm();
+        showNotice("tripNotice", "Trip saved and selected.");
+      } catch (error) { showNotice("tripNotice", error.message, true); }
+    }
+    function editTrip(id) {
+      const trip = state.trips.find((item) => item.id === id);
+      if (!trip) return;
+      const fields = { tripId: "id", destination: "destination", startDate: "startDate", endDate: "endDate", tripBudget: "budget", currency: "currency", travelers: "travelers", tripStatus: "status", tripNotes: "notes" };
+      Object.keys(fields).forEach((field) => { byId(field).value = trip[fields[field]] || ""; });
+      byId("tripFormTitle").textContent = "Edit Trip";
+    }
+    function resetTripForm() {
+      byId("tripForm").reset();
+      byId("tripId").value = "";
+      byId("travelers").value = "1";
+      byId("tripFormTitle").textContent = "Plan A Trip";
+    }
+    async function saveActivity(event) {
+      event.preventDefault();
+      const trip = selectedTrip();
+      if (!trip) return showNotice("itineraryNotice", "Create or select a trip first.", true);
+      const item = {
+        id: uid("ACT"), tripId: trip.id, date: byId("activityDate").value, time: byId("activityTime").value,
+        title: byId("activityTitle").value.trim(), location: byId("activityLocation").value.trim(),
+        category: byId("activityCategory").value, notes: byId("activityNotes").value.trim(), completed: false
+      };
+      try {
+        await persist("saveItinerary", item, "itinerary");
+        byId("itineraryForm").reset();
+        showNotice("itineraryNotice", "Activity added.");
+      } catch (error) { showNotice("itineraryNotice", error.message, true); }
+    }
+    async function toggleActivity(id) {
+      const item = state.itinerary.find((row) => row.id === id);
+      if (!item) return;
+      try { await persist("saveItinerary", { ...item, completed: !item.completed }, "itinerary"); }
+      catch (error) { setStatus(error.message); }
+    }
+    async function saveExpense(event) {
+      event.preventDefault();
+      const trip = selectedTrip();
+      if (!trip) return showNotice("expenseNotice", "Create or select a trip first.", true);
+      const item = {
+        id: uid("EXP"), tripId: trip.id, date: byId("expenseDate").value,
+        category: byId("expenseCategory").value, description: byId("expenseDescription").value.trim(),
+        amount: Number(byId("expenseAmount").value)
+      };
+      try {
+        await persist("saveExpense", item, "expenses");
+        byId("expenseForm").reset();
+        byId("expenseDate").value = today();
+        showNotice("expenseNotice", "Expense recorded.");
+      } catch (error) { showNotice("expenseNotice", error.message, true); }
+    }
+    async function savePacking(event) {
+      event.preventDefault();
+      const trip = selectedTrip();
+      if (!trip) return showNotice("packingNotice", "Create or select a trip first.", true);
+      const item = {
+        id: uid("PACK"), tripId: trip.id, item: byId("packingItem").value.trim(),
+        category: byId("packingCategory").value, quantity: Number(byId("packingQuantity").value || 1), packed: false
+      };
+      try {
+        await persist("savePacking", item, "packing");
+        byId("packingForm").reset();
+        byId("packingQuantity").value = "1";
+        showNotice("packingNotice", "Packing item added.");
+      } catch (error) { showNotice("packingNotice", error.message, true); }
+    }
+    async function togglePacking(id) {
+      const item = state.packing.find((row) => row.id === id);
+      if (!item) return;
+      try { await persist("savePacking", { ...item, packed: !item.packed }, "packing"); }
+      catch (error) { setStatus(error.message); }
+    }
+
+    async function connectSheet(testOnly) {
+      const entered = byId("apiUrl").value.trim();
+      if (!entered || !/\/exec(?:\?|$)/.test(entered)) {
+        showNotice("setupNotice", "Paste an Apps Script web app URL ending in /exec.", true);
+        return;
+      }
+      const previous = state.apiUrl;
+      state.apiUrl = entered;
+      try {
+        await request("getData");
+        if (testOnly) {
+          state.apiUrl = previous;
+          showNotice("setupNotice", "Connection works. Click Connect to use this Sheet.");
+          return;
+        }
+        localStorage.setItem(STORAGE_KEYS.apiUrl, entered);
+        showNotice("setupNotice", "Google Sheets database connected.");
+        await loadData();
+      } catch (error) {
+        state.apiUrl = previous;
+        showNotice("setupNotice", "Connection failed. Check the deployment URL and access setting.", true);
+      }
+    }
+    function switchView(id) {
+      document.querySelectorAll(".nav-btn").forEach((button) => button.classList.toggle("active", button.dataset.view === id));
+      document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === id));
+    }
+
+    document.addEventListener("click", (event) => {
+      const nav = event.target.closest(".nav-btn");
+      const go = event.target.closest("[data-go]");
+      const select = event.target.closest("[data-select-trip]");
+      const edit = event.target.closest("[data-edit-trip]");
+      const activity = event.target.closest("[data-toggle-activity]");
+      const remove = event.target.closest("[data-delete]");
+      if (nav) switchView(nav.dataset.view);
+      if (go) switchView(go.dataset.go);
+      if (select) selectTrip(select.dataset.selectTrip);
+      if (edit) { editTrip(edit.dataset.editTrip); switchView("trips"); }
+      if (activity) toggleActivity(activity.dataset.toggleActivity);
+      if (remove) deleteRecord(remove.dataset.delete, remove.dataset.id);
+    });
+    byId("packingRows").addEventListener("change", (event) => {
+      if (event.target.matches("[data-toggle-packing]")) togglePacking(event.target.dataset.togglePacking);
+    });
+    byId("tripForm").addEventListener("submit", saveTrip);
+    byId("itineraryForm").addEventListener("submit", saveActivity);
+    byId("expenseForm").addEventListener("submit", saveExpense);
+    byId("packingForm").addEventListener("submit", savePacking);
+    byId("resetTripBtn").addEventListener("click", resetTripForm);
+    byId("saveUrlBtn").addEventListener("click", () => connectSheet(false));
+    byId("testUrlBtn").addEventListener("click", () => connectSheet(true));
+    byId("demoBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEYS.apiUrl);
+      state.apiUrl = "";
+      byId("apiUrl").value = "";
+      loadData();
+      showNotice("setupNotice", "Demo mode active. Plans stay on this device.");
+    });
+
+    async function start() {
+      byId("apiUrl").value = state.apiUrl;
+      byId("expenseDate").value = today();
+      await loadData();
+      if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+    start();
+  </script>
+</body>
+</html>

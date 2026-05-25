@@ -1,0 +1,10 @@
+{
+  "name": "TrailPlan - Travel Planner",
+  "short_name": "TrailPlan",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f5ef",
+  "theme_color": "#0f766e",
+  "description": "Plan trips, itineraries, budgets and packing lists with Google Sheets storage.",
+  "icons": []
+}
