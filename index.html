@@ -855,10 +855,27 @@
         status: byId("tripStatus").value,
         notes: byId("tripNotes").value.trim()
       };
-      if (trip.endDate < trip.startDate) {
-        showNotice("tripNotice", "End date must be after the start date.", true);
-        return;
-      }
+      if (!trip.startDate || !trip.endDate){
+
+    showNotice(
+      "tripNotice",
+      "Please choose start and end dates.",
+      true
+    );
+
+    return;
+}
+
+if (trip.endDate < trip.startDate){
+
+    showNotice(
+      "tripNotice",
+      "End date must be after start date.",
+      true
+    );
+
+    return;
+}
       try {
         await persist("saveTrip", trip, "trips");
         selectTrip(trip.id);
