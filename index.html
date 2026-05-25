@@ -614,10 +614,23 @@
         return code + " " + Number(value || 0).toFixed(2);
       }
     }
-    function friendlyDate(value) {
-      if (!value) return "";
-      return new Date(value + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-    }
+  function friendlyDate(value) {
+
+    if (!value)
+        return "No date";
+
+    const d = new Date(value);
+
+    if (isNaN(d.getTime()))
+        return "No date";
+
+    return d.toLocaleDateString(undefined,{
+        month:"short",
+        day:"numeric",
+        year:"numeric"
+    });
+
+}
     function selectedTrip() {
       return state.trips.find((trip) => trip.id === state.selectedTripId) || state.trips[0] || null;
     }
