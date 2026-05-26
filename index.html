@@ -73,7 +73,7 @@
       font-size: 0.9rem;
     }
     .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sand); }
-    .dot.live { background: #5eead4; }
+    .dot.live { background:#22c55e;} .dot.offline{background:#ef4444;} .dot.demo{background:#f59e0b;}
 
     .shell { max-width: 1260px; margin: 0 auto; padding: 20px 16px 34px; }
     .nav {
@@ -390,7 +390,47 @@
       .packing-row { grid-template-columns: auto 1fr; }
       .packing-row .danger { grid-column: 2; }
     }
-  </style>
+  
+.loading{position:fixed;inset:0;background:rgba(255,255,255,.6);display:none;align-items:center;justify-content:center;z-index:9999}
+.loading.show{display:flex}.spinner{width:50px;height:50px;border:5px solid #ddd;border-top-color:#0f766e;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Clean SaaS style */
+body{background:#f8fafc!important;font-family:"Segoe UI",sans-serif}
+.card{background:#fff!important;border:1px solid #e5e7eb!important;box-shadow:0 2px 10px rgba(0,0,0,.04)!important}
+.header{background:#0f766e!important}
+.nav-btn{background:#fff;border:1px solid #d1d5db}
+.nav-btn.active{background:#0f766e!important;color:#fff}
+.hero{background:linear-gradient(135deg,#0f766e,#0b8ea5)!important;border-radius:22px}
+.primary{background:#0f766e!important}
+.primary:hover{background:#115e59!important}
+.trip-card:hover,.timeline-item:hover,.packing-row:hover{background:#f9fafb}
+.stat-value{font-size:2rem;font-weight:700}
+
+/* Better responsiveness */
+img,table{max-width:100%}
+@media (max-width:1024px){
+.dashboard-grid,.two-col{grid-template-columns:1fr!important}
+.stats{grid-template-columns:repeat(2,1fr)!important}
+}
+@media (max-width:768px){
+.header{padding:12px}
+.nav{overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}
+.nav-btn{flex:0 0 auto}
+.stats{grid-template-columns:1fr 1fr!important}
+.hero{grid-template-columns:1fr!important}
+.form-grid{grid-template-columns:1fr!important}
+.action-row{flex-direction:column}
+}
+@media (max-width:480px){
+.stats{grid-template-columns:1fr!important}
+.card{padding:12px!important}
+.stat-value{font-size:1.5rem}
+.hero h2{font-size:1.5rem}
+.countdown strong{font-size:1.7rem}
+.trip-card,.timeline-item,.packing-row{grid-template-columns:1fr!important}
+}
+</style>
 </head>
 <body>
   <header class="header">
@@ -571,7 +611,10 @@
       demoData: "trailplan-demo-data",
       selectedTrip: "trailplan-selected-trip"
     };
-    const byId = (id) => document.getElementById(id);
+    
+function showLoading(v){byId("loading").classList.toggle("show",v);}
+
+const byId = (id) => document.getElementById(id);
     const today = () => new Date().toISOString().slice(0, 10);
     const uid = (prefix) => prefix + "-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
     const escapeHtml = (value) => String(value == null ? "" : value)
@@ -608,7 +651,7 @@
 
     function currency(value, trip) {
       const code = (trip && trip.currency) || "USD";
-      try {
+      showLoading(true); try {
         return new Intl.NumberFormat(undefined, { style: "currency", currency: code }).format(Number(value || 0));
       } catch (error) {
         return code + " " + Number(value || 0).toFixed(2);
@@ -649,7 +692,8 @@
     function setConnection(live) {
       state.online = live;
       byId("syncDot").classList.toggle("live", live);
-      byId("syncLabel").textContent = live ? "Google Sheets connected" : "Demo mode";
+      byId("syncLabel").textContent = live ? "Online Sync" : navigator.onLine ? "Demo Mode":"Offline";
+const d=byId("syncDot"); d.className="dot "+(live?"live":navigator.onLine?"demo":"offline");
     }
     function readDemoData() {
       const stored = localStorage.getItem(STORAGE_KEYS.demoData);
@@ -769,7 +813,7 @@
       return `<article class="trip-card${chosen}">
         <div><h3>${escapeHtml(trip.destination)}</h3><p>${friendlyDate(trip.startDate)} - ${friendlyDate(trip.endDate)} | ${currency(trip.budget, trip)}</p>
         <span class="badge${statusClass}">${escapeHtml(status)}</span></div>
-        <div class="trip-actions"><button class="small-btn" data-select-trip="${escapeHtml(trip.id)}">${chosen ? "Selected" : "Select"}</button>${editable ? `<button class="secondary small-btn" data-edit-trip="${escapeHtml(trip.id)}">Edit</button>` : ""}</div>
+        <div class="trip-actions"><button class="small-btn" data-select-trip="${escapeHtml(trip.id)}">${chosen ? "Selected" : "Select"}</button>${editable ? `<button class="secondary small-btn" data-edit-trip="${escapeHtml(trip.id)}">Edit</button><button class="danger small-btn" data-delete-trip="${escapeHtml(trip.id)}">Delete</button>` : ""}</div>
       </article>`;
     }
     function renderTrips() {
@@ -789,7 +833,10 @@
         <article class="timeline-item${item.completed ? " done" : ""}">
           <div class="date-chip">${friendlyDate(item.date).slice(0, 6)}<span class="tiny">${escapeHtml(item.time || "")}</span></div>
           <div><span class="item-title">${escapeHtml(item.title)}</span><span class="tiny">${escapeHtml(item.category)}${item.location ? " | " + escapeHtml(item.location) : ""}</span></div>
-          <div class="action-row"><button class="small-btn" data-toggle-activity="${escapeHtml(item.id)}">${item.completed ? "Undo" : "Done"}</button><button class="danger small-btn" data-delete="itinerary" data-id="${escapeHtml(item.id)}">Delete</button></div>
+          <div class="action-row">
+<button class="secondary small-btn" data-edit-activity="${escapeHtml(item.id)}">Edit</button>
+<button class="small-btn" data-toggle-activity="${escapeHtml(item.id)}">${item.completed ? "Undo" : "Done"}</button>
+<button class="danger small-btn" data-delete="itinerary" data-id="${escapeHtml(item.id)}">Delete</button></div>
         </article>`).join("") : '<div class="empty">No itinerary entries for this trip.</div>';
     }
     function renderBudget() {
@@ -829,17 +876,14 @@
     }
     async function deleteRecord(collection, id) {
       try {
-        if (state.online) {
-          await request("deleteRecord", { collection, id });
-          await loadData();
-        } else {
-          state[collection] = state[collection].filter((item) => item.id !== id);
-          saveDemoData();
-          renderAll();
+        if(collection==="trips"){
+          state.itinerary=state.itinerary.filter(x=>x.tripId!==id);
+          state.expenses=state.expenses.filter(x=>x.tripId!==id);
+          state.packing=state.packing.filter(x=>x.tripId!==id);
         }
-      } catch (error) {
-        setStatus(error.message);
-      }
+        state[collection]=state[collection].filter(item=>item.id!==id);
+        saveDemoData(); renderAll();
+      } catch(error){ setStatus(error.message); }
     }
 
     async function saveTrip(event) {
@@ -971,6 +1015,8 @@ if (trip.endDate < trip.startDate){
           return;
         }
         localStorage.setItem(STORAGE_KEYS.apiUrl, entered);
+byId("saveUrlBtn").textContent="✓ Connected";
+byId("saveUrlBtn").disabled=true;
         showNotice("setupNotice", "Google Sheets database connected.");
         await loadData();
       } catch (error) {
@@ -978,7 +1024,19 @@ if (trip.endDate < trip.startDate){
         showNotice("setupNotice", "Connection failed: " + error.message + " Use an /exec deployment set to Execute as Me and Who has access Anyone.", true);
       }
     }
-    function switchView(id) {
+    
+function editActivity(id){
+ const a=state.itinerary.find(x=>x.id===id); if(!a)return;
+ byId("activityDate").value=a.date||"";
+ byId("activityTime").value=a.time||"";
+ byId("activityTitle").value=a.title||"";
+ byId("activityLocation").value=a.location||"";
+ byId("activityCategory").value=a.category||"Activity";
+ byId("activityNotes").value=a.notes||"";
+ switchView("itinerary");
+}
+
+function switchView(id) {
       document.querySelectorAll(".nav-btn").forEach((button) => button.classList.toggle("active", button.dataset.view === id));
       document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === id));
     }
@@ -988,14 +1046,14 @@ if (trip.endDate < trip.startDate){
       const go = event.target.closest("[data-go]");
       const select = event.target.closest("[data-select-trip]");
       const edit = event.target.closest("[data-edit-trip]");
-      const activity = event.target.closest("[data-toggle-activity]");
-      const remove = event.target.closest("[data-delete]");
+      const activity = event.target.closest("[data-toggle-activity]"); const editAct=event.target.closest("[data-edit-activity]");
+      const remove = event.target.closest("[data-delete]"); const deltrip = event.target.closest("[data-delete-trip]");
       if (nav) switchView(nav.dataset.view);
       if (go) switchView(go.dataset.go);
       if (select) selectTrip(select.dataset.selectTrip);
       if (edit) { editTrip(edit.dataset.editTrip); switchView("trips"); }
-      if (activity) toggleActivity(activity.dataset.toggleActivity);
-      if (remove) deleteRecord(remove.dataset.delete, remove.dataset.id);
+      if (activity) toggleActivity(activity.dataset.toggleActivity); if(editAct) editActivity(editAct.dataset.editActivity);
+      if (remove) deleteRecord(remove.dataset.delete, remove.dataset.id); if(deltrip) deleteRecord("trips", deltrip.dataset.deleteTrip);
     });
     byId("packingRows").addEventListener("change", (event) => {
       if (event.target.matches("[data-toggle-packing]")) togglePacking(event.target.dataset.togglePacking);
@@ -1015,13 +1073,27 @@ if (trip.endDate < trip.startDate){
       showNotice("setupNotice", "Demo mode active. Plans stay on this device.");
     });
 
-    async function start() {
+    
+window.addEventListener("online",()=>{
+ setStatus("Connected to internet");
+ byId("syncLabel").textContent = state.apiUrl ? "🟢 Online Sync":"🟡 Demo Mode";
+});
+window.addEventListener("offline",()=>{
+ setStatus("Offline mode");
+ byId("syncLabel").textContent="🔴 Offline";
+});
+
+async function start() {
       byId("apiUrl").value = state.apiUrl;
       byId("expenseDate").value = today();
       await loadData();
       if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
     }
-    start();
+    
+window.addEventListener("online",()=>{setStatus("Back online"); setConnection(!!state.apiUrl);});
+window.addEventListener("offline",()=>{setStatus("Offline mode active"); setConnection(false);});
+
+    document.addEventListener('submit',()=>showLoading(true)); document.addEventListener('click',()=>setTimeout(()=>showLoading(false),800)); start();
   </script>
-</body>
+<div id="loading" class="loading"><div class="spinner"></div></div></body>
 </html>
