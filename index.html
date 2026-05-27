@@ -431,6 +431,87 @@ img,table{max-width:100%}
 .trip-card,.timeline-item,.packing-row{grid-template-columns:1fr!important}
 }
 </style>
+
+<style>
+/* Responsive nav only - no wide buttons, no scroll */
+.tabs{
+ display:flex;
+ flex-wrap:wrap;
+ justify-content:center;
+ gap:10px;
+}
+
+.tabs button,.tab-btn{
+ width:auto !important;
+ min-width:90px;
+ max-width:180px;
+ flex:0 1 auto !important;
+ padding:10px 16px !important;
+ white-space:nowrap;
+}
+
+@media(max-width:768px){
+ .tabs{
+   gap:8px;
+ }
+ .tabs button,.tab-btn{
+   min-width:0;
+   padding:8px 14px !important;
+ }
+}
+</style>
+
+<style>
+.delete-modal{position:fixed;inset:0;background:rgba(0,0,0,.3);display:none;justify-content:center;align-items:center;z-index:9999}
+.delete-box{background:#fff;width:280px;padding:18px;border-radius:14px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,.15)}
+.delete-actions{display:flex;gap:8px;margin-top:16px}
+.delete-actions button{flex:1;border-radius:10px;padding:10px}
+</style>
+
+<style>
+.pack-layout{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.preset-table{border:1px solid #ddd;border-radius:12px;padding:12px;max-height:320px;overflow:auto}
+.preset-table table{width:100%}
+@media(max-width:768px){.pack-layout{grid-template-columns:1fr}}
+</style>
+<script>
+const packingTemplates=[
+['Passport','Essential',1],['Charger','Electronics',1],['Toothbrush','Toiletries',1],
+['Powerbank','Electronics',1],['Medicine','Health',1],['Shirt','Clothes',3]
+];
+
+
+
+function addSelectedPacking(){
+ const checked=document.querySelectorAll('.preset-pack:checked');
+
+ checked.forEach(cb=>{
+   const row=cb.closest('tr');
+   const cols=row.querySelectorAll('td');
+
+   const item=cols[1]?.innerText.trim();
+   const category=cols[2]?.innerText.trim();
+
+   const itemEl=document.getElementById('packingItem');
+   const catEl=document.getElementById('packingCategory');
+   const qtyEl=document.getElementById('packingQty');
+
+   if(itemEl) itemEl.value=item;
+   if(catEl) catEl.value=category;
+   if(qtyEl) qtyEl.value=1;
+
+   const form=document.getElementById('packingForm');
+   if(form){
+      form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+   }
+
+   cb.checked=false;
+ });
+}
+
+
+
+</script>
 </head>
 <body>
   <header class="header">
@@ -438,7 +519,7 @@ img,table{max-width:100%}
       <h1>TrailPlan</h1>
       <small>Itineraries, budget and packing in one place</small>
     </div>
-    <div class="connection"><span class="dot" id="syncDot"></span><span id="syncLabel">Demo mode</span></div>
+    <div class="connection"><span class="dot" id="syncDot"></span><span id="syncLabel">Offline</span></div>
   </header>
 
   <div class="shell">
@@ -448,7 +529,7 @@ img,table{max-width:100%}
       <button class="nav-btn" data-view="itinerary">Itinerary</button>
       <button class="nav-btn" data-view="budget">Budget</button>
       <button class="nav-btn" data-view="packing">Packing</button>
-      <button class="nav-btn" data-view="setup">Google Sheets Setup</button>
+      <button class="nav-btn" data-view="setup">Setup</button>
     </nav>
 
     <main>
@@ -507,6 +588,8 @@ img,table{max-width:100%}
           <div class="card">
             <div class="section-title"><h2>Add Activity</h2></div>
             <form class="form-grid" id="itineraryForm">
+<input type="hidden" id="activityId">
+<input type="hidden" id="activityId">
               <label><span class="label">Date</span><input id="activityDate" class="field" type="date" required></label>
               <label><span class="label">Time</span><input id="activityTime" class="field" type="time"></label>
               <label class="span-all"><span class="label">Activity</span><input id="activityTitle" class="field" required placeholder="Sunset walking tour"></label>
@@ -534,7 +617,7 @@ img,table{max-width:100%}
             </div>
           </div>
           <div class="card">
-            <div class="section-title"><h2>Record Expense</h2></div>
+            <div class="section-title"><h2>Record Expense<input type="hidden" id="expenseId"></h2></div>
             <form class="form-grid" id="expenseForm">
               <label><span class="label">Date</span><input id="expenseDate" class="field" type="date" required></label>
               <label><span class="label">Category</span><select id="expenseCategory" class="field"><option>Accommodation</option><option>Transport</option><option>Food</option><option>Activities</option><option>Shopping</option><option>Other</option></select></label>
@@ -560,6 +643,59 @@ img,table{max-width:100%}
               <label><span class="label">Category</span><select id="packingCategory" class="field"><option>Essentials</option><option>Clothing</option><option>Electronics</option><option>Toiletries</option><option>Documents</option><option>Other</option></select></label>
               <label><span class="label">Quantity</span><input id="packingQuantity" class="field" type="number" min="1" step="1" value="1"></label>
               <button class="primary span-all" type="submit">Add To List</button>
+<div style="margin-top:18px;padding:14px;border:1px solid #ddd;border-radius:12px">
+<h4>Quick List</h4>
+<p style="font-size:12px;color:#666">Select common items and add multiple at once.</p>
+
+<table style="width:100%">
+<tr><th></th><th>Item</th><th>Category</th></tr>
+<tr><td><input class="preset-pack" type="checkbox"></td><td>Passport</td><td>Essentials</td></tr>
+<tr><td><input class="preset-pack" type="checkbox"></td><td>Charger</td><td>Electronics</td></tr>
+<tr><td><input class="preset-pack" type="checkbox"></td><td>Powerbank</td><td>Electronics</td></tr>
+<tr><td><input class="preset-pack" type="checkbox"></td><td>Medicine</td><td>Health</td></tr>
+<tr><td><input class="preset-pack" type="checkbox"></td><td>Toothbrush</td><td>Toiletries</td></tr>
+</table>
+
+<button type="button" onclick="addSelectedPacking()" style="margin-top:12px;width:100%">
+Add Selected
+</button>
+</div>
+
+<script>
+
+
+function addSelectedPacking(){
+ const checked=document.querySelectorAll('.preset-pack:checked');
+
+ checked.forEach(cb=>{
+   const row=cb.closest('tr');
+   const cols=row.querySelectorAll('td');
+
+   const item=cols[1]?.innerText.trim();
+   const category=cols[2]?.innerText.trim();
+
+   const itemEl=document.getElementById('packingItem');
+   const catEl=document.getElementById('packingCategory');
+   const qtyEl=document.getElementById('packingQty');
+
+   if(itemEl) itemEl.value=item;
+   if(catEl) catEl.value=category;
+   if(qtyEl) qtyEl.value=1;
+
+   const form=document.getElementById('packingForm');
+   if(form){
+      form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+   }
+
+   cb.checked=false;
+ });
+}
+
+
+</script>
+
+
+
             </form>
             <div class="notice" id="packingNotice"></div>
           </div>
@@ -578,7 +714,7 @@ img,table{max-width:100%}
             </div>
             <div class="action-row">
               <button class="secondary" id="testUrlBtn">Test Connection</button>
-              <button class="danger" id="demoBtn">Use Demo Data</button>
+              <button class="danger" id="demoBtn">Disabled</button>
             </div>
             <div class="notice" id="setupNotice"></div>
           </div>
@@ -616,7 +752,7 @@ img,table{max-width:100%}
 function stopLoading(){showLoading(false);}
 setInterval(()=>showLoading(false),3000);
 
-function showLoading(v){byId("loading").classList.toggle("show",v);}
+function showLoading(v){const el=document.getElementById("loading"); if(!el)return; el.classList.toggle("show",v);}
 
 const byId = (id) => document.getElementById(id);
     const today = () => new Date().toISOString().slice(0, 10);
@@ -655,7 +791,7 @@ const byId = (id) => document.getElementById(id);
 
     function currency(value, trip) {
       const code = (trip && trip.currency) || "USD";
-      showLoading(true); try {
+      try {
         return new Intl.NumberFormat(undefined, { style: "currency", currency: code }).format(Number(value || 0));
       } catch (error) {
         return code + " " + Number(value || 0).toFixed(2);
@@ -693,12 +829,14 @@ const byId = (id) => document.getElementById(id);
       clearTimeout(el.timer);
       el.timer = setTimeout(() => el.classList.remove("show"), 4200);
     }
-    function setConnection(live) {
-      state.online = live;
-      byId("syncDot").classList.toggle("live", live);
-      byId("syncLabel").textContent = live ? "Online Sync" : navigator.onLine ? "Demo Mode":"Offline";
-const d=byId("syncDot"); d.className="dot "+(live?"live":navigator.onLine?"demo":"offline");
-    }
+    function setConnection(isConnected){
+state.online=isConnected;
+const dot=byId("syncDot");
+const label=byId("syncLabel");
+dot.className="dot";
+if(isConnected){dot.classList.add("live");label.innerHTML="🟢 Online Mode";}
+else{dot.classList.add("offline");label.innerHTML="🔴 Offline Mode";}
+}
     function readDemoData() {
       const stored = localStorage.getItem(STORAGE_KEYS.demoData);
       return stored ? JSON.parse(stored) : makeDemoData();
@@ -732,33 +870,17 @@ const d=byId("syncDot"); d.className="dot "+(live?"live":navigator.onLine?"demo"
       });
     }
 
-    async function loadData() {
-      if (!state.apiUrl) {
-        Object.assign(state, readDemoData());
-        setConnection(false);
-        ensureSelectedTrip();
-        renderAll();
-        return;
-      }
-      setStatus("Loading travel plans from Google Sheets...");
-      try {
-        const result = await request("getData");
-        state.trips = result.trips || [];
-        state.itinerary = result.itinerary || [];
-        state.expenses = result.expenses || [];
-        state.packing = result.packing || [];
-        setConnection(true);
-        setStatus("Your Google Sheets travel database is synced.");
-      } catch (error) {
-        Object.assign(state, readDemoData());
-        setConnection(false);
-        showNotice("setupNotice", "Could not connect. Showing browser demo data instead.", true);
-        setStatus(error.message);
-      }
-      ensureSelectedTrip();
-      renderAll();
-    }
-    function ensureSelectedTrip() {
+    async function loadData(){
+ if(!state.apiUrl){setConnection(false);setStatus("Connect Google Sheets first");renderAll();return;}
+ try{
+  const r=await request("getData");
+  state.trips=r.trips||[]; state.itinerary=r.itinerary||[];
+  state.expenses=r.expenses||[]; state.packing=r.packing||[];
+  setConnection(true);
+ }catch(e){setConnection(false);showNotice("setupNotice",e.message,true);}
+ ensureSelectedTrip(); renderAll();
+}
+function ensureSelectedTrip() {
       if (!state.trips.some((trip) => trip.id === state.selectedTripId)) state.selectedTripId = state.trips[0] ? state.trips[0].id : "";
       localStorage.setItem(STORAGE_KEYS.selectedTrip, state.selectedTripId);
     }
@@ -826,7 +948,7 @@ const d=byId("syncDot"); d.className="dot "+(live?"live":navigator.onLine?"demo"
     }
     function activityCard(item) {
       return `<article class="timeline-item${item.completed ? " done" : ""}">
-        <div class="date-chip">${friendlyDate(item.date).replace(", " + new Date(item.date + "T00:00:00").getFullYear(), "")}<span class="tiny">${escapeHtml(item.time || "")}</span></div>
+        <div class="date-chip">${friendlyDate(item.date).replace(", " + new Date(item.date + "T00:00:00").getFullYear(), "")}<span class="tiny">${(()=>{const d=new Date(item.time); return escapeHtml(item.time && !isNaN(d)? d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit",hour12:true}) : (item.time||""));})()}</span></div>
         <div><span class="item-title">${escapeHtml(item.title)}</span><span class="tiny">${escapeHtml(item.category)}${item.location ? " | " + escapeHtml(item.location) : ""}</span></div>
         <button class="small-btn" data-toggle-activity="${escapeHtml(item.id)}">${item.completed ? "Undo" : "Done"}</button>
       </article>`;
@@ -846,7 +968,7 @@ function renderItinerary() {
    <div style="height:8px;background:#eee;border-radius:99px;margin:10px 0"><div style="width:${pct}%;height:100%;background:#0f766e;border-radius:99px"></div></div>`;
    items.forEach(item=>{
       htmlOut += `<div class="timeline-item ${item.completed?'done':''}">
-      <div class="date-chip">${item.time||'--:--'}</div>
+      <div class="date-chip">${(()=>{const d=new Date(item.time);return item.time&&!isNaN(d)?d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',hour12:true}):'--:--';})()}</div>
       <div><span class="item-title">${item.title}</span><span class="tiny">${item.location||''}</span></div>
       <div class="action-row"><button class="secondary small-btn" data-edit-activity="${item.id}">Edit</button><button class="small-btn" data-toggle-activity="${item.id}">${item.completed?'Undo':'Done'}</button><button class="danger small-btn" data-delete="itinerary" data-id="${item.id}">Delete</button></div></div>`;
    });
@@ -865,7 +987,7 @@ function renderBudget() {
       byId("budgetFill").classList.toggle("high", used > 100);
       byId("expenseRows").innerHTML = expenses.length ? expenses.map((item) => `
         <tr><td>${friendlyDate(item.date)}</td><td>${escapeHtml(item.description)}</td><td>${escapeHtml(item.category)}</td>
-        <td>${currency(item.amount, trip)}</td><td><button class="danger small-btn" data-delete="expenses" data-id="${escapeHtml(item.id)}">Delete</button></td></tr>`).join("") : '<tr><td colspan="5">No expenses saved.</td></tr>';
+        <td>${currency(item.amount, trip)}</td><td><button class="danger small-btn" data-edit-expense="${escapeHtml(item.id)}">Edit</button> <button class="danger small-btn" data-delete="expenses" data-id="${escapeHtml(item.id)}">Delete</button></td></tr>`).join("") : '<tr><td colspan="5">No expenses saved.</td></tr>';
     }
     function renderPacking() {
       const packing = forTrip("packing");
@@ -889,60 +1011,48 @@ function renderBudget() {
       saveDemoData();
       renderAll();
     }
-    async function deleteRecord(collection, id) {
-      try {
-        if(collection==="trips"){
-          state.itinerary=state.itinerary.filter(x=>x.tripId!==id);
-          state.expenses=state.expenses.filter(x=>x.tripId!==id);
-          state.packing=state.packing.filter(x=>x.tripId!==id);
-        }
-        state[collection]=state[collection].filter(item=>item.id!==id);
-        saveDemoData(); renderAll();
-      } catch(error){ setStatus(error.message); }
-    }
-
-    async function saveTrip(event) {
-      event.preventDefault();
-      const trip = {
-        id: byId("tripId").value || uid("TRIP"),
-        destination: byId("destination").value.trim(),
-        startDate: byId("startDate").value,
-        endDate: byId("endDate").value,
-        budget: Number(byId("tripBudget").value),
-        currency: byId("currency").value,
-        travelers: Number(byId("travelers").value || 1),
-        status: byId("tripStatus").value,
-        notes: byId("tripNotes").value.trim()
-      };
-      if (!trip.startDate || !trip.endDate){
-
-    showNotice(
-      "tripNotice",
-      "Please choose start and end dates.",
-      true
-    );
-
-    return;
+    async function deleteRecord(collection,id){
+ try{
+   if(state.online){
+     await request("delete",{id:id,sheet:collection});
+     await loadData();
+     return;
+   }
+   if(collection==="trips"){
+     state.itinerary=state.itinerary.filter(x=>x.tripId!==id);
+     state.expenses=state.expenses.filter(x=>x.tripId!==id);
+     state.packing=state.packing.filter(x=>x.tripId!==id);
+   }
+   state[collection]=state[collection].filter(x=>x.id!==id);
+   saveDemoData(); renderAll();
+ }catch(error){ setStatus(error.message); }
 }
 
-if (trip.endDate < trip.startDate){
-
-    showNotice(
-      "tripNotice",
-      "End date must be after start date.",
-      true
-    );
-
-    return;
+    async function saveTrip(event){
+ event.preventDefault();
+ const existingId=byId("tripId").value.trim();
+ const trip={
+  id: existingId || uid("TRIP"),
+  destination: byId("destination").value.trim(),
+  startDate: byId("startDate").value,
+  endDate: byId("endDate").value,
+  budget:Number(byId("tripBudget").value),
+  currency:byId("currency").value,
+  travelers:Number(byId("travelers").value||1),
+  status:byId("tripStatus").value,
+  notes:byId("tripNotes").value.trim()
+ };
+ if(trip.endDate<trip.startDate){
+   showNotice("tripNotice","End date invalid",true); return;
+ }
+ try{
+   await persist("saveTrip",trip,"trips");
+   selectTrip(trip.id);
+   resetTripForm();
+   showNotice("tripNotice", existingId ? "Trip updated." : "Trip created.");
+ }catch(error){ showNotice("tripNotice",error.message,true);}
 }
-      try {
-        await persist("saveTrip", trip, "trips");
-        selectTrip(trip.id);
-        resetTripForm();
-        showNotice("tripNotice", "Trip saved and selected.");
-      } catch (error) { showNotice("tripNotice", error.message, true); }
-    }
-    function editTrip(id) {
+function editTrip(id) {
       const trip = state.trips.find((item) => item.id === id);
       if (!trip) return;
       const fields = { tripId: "id", destination: "destination", startDate: "startDate", endDate: "endDate", tripBudget: "budget", currency: "currency", travelers: "travelers", tripStatus: "status", tripNotes: "notes" };
@@ -955,22 +1065,144 @@ if (trip.endDate < trip.startDate){
       byId("travelers").value = "1";
       byId("tripFormTitle").textContent = "Plan A Trip";
     }
-    async function saveActivity(event) {
-      event.preventDefault();
-      const trip = selectedTrip();
-      if (!trip) return showNotice("itineraryNotice", "Create or select a trip first.", true);
-      const item = {
-        id: uid("ACT"), tripId: trip.id, date: byId("activityDate").value, time: byId("activityTime").value,
-        title: byId("activityTitle").value.trim(), location: byId("activityLocation").value.trim(),
-        category: byId("activityCategory").value, notes: byId("activityNotes").value.trim(), completed: false
-      };
-      try {
-        await persist("saveItinerary", item, "itinerary");
-        byId("itineraryForm").reset();
-        showNotice("itineraryNotice", "Activity added.");
-      } catch (error) { showNotice("itineraryNotice", error.message, true); }
-    }
-    async function toggleActivity(id) {
+  async function saveTrip(event){
+
+if(event)
+event.preventDefault();
+
+
+const trip={
+
+id:
+byId("tripId").value ||
+
+"TRIP_"+Date.now(),
+
+
+destination:
+byId("destination").value,
+
+
+startDate:
+byId("startDate").value,
+
+
+endDate:
+byId("endDate").value,
+
+
+budget:
+Number(
+byId("tripBudget").value
+||0
+),
+
+
+currency:
+byId("currency").value,
+
+
+travelers:
+Number(
+byId("travelers").value
+||1
+),
+
+
+status:
+byId("tripStatus").value,
+
+
+notes:
+byId("tripNotes").value
+
+};
+
+
+
+try{
+
+
+/* ONLINE */
+
+if(
+state.online &&
+state.apiUrl
+){
+
+await request(
+
+"saveTrip",
+
+trip
+
+);
+
+
+await loadData();
+
+
+showNotice(
+
+"tripNotice",
+
+"Saved to Google Sheets"
+
+);
+
+
+}
+
+
+/* OFFLINE */
+
+else{
+
+state.trips.unshift(
+trip
+);
+
+saveDemoData();
+
+renderAll();
+
+showNotice(
+
+"tripNotice",
+
+"Saved locally"
+
+);
+
+}
+
+
+/* RESET */
+
+resetTripForm();
+
+
+}
+catch(err){
+
+console.error(
+err
+);
+
+showNotice(
+
+"tripNotice",
+
+"Save failed",
+
+true
+
+);
+
+}
+
+}
+async function toggleActivity(id) {
       const item = state.itinerary.find((row) => row.id === id);
       if (!item) return;
       try { await persist("saveItinerary", { ...item, completed: !item.completed }, "itinerary"); }
@@ -981,7 +1213,7 @@ if (trip.endDate < trip.startDate){
       const trip = selectedTrip();
       if (!trip) return showNotice("expenseNotice", "Create or select a trip first.", true);
       const item = {
-        id: uid("EXP"), tripId: trip.id, date: byId("expenseDate").value,
+        id:(byId("expenseId")?.value||uid("EXP")), tripId: trip.id, date: byId("expenseDate").value,
         category: byId("expenseCategory").value, description: byId("expenseDescription").value.trim(),
         amount: Number(byId("expenseAmount").value)
       };
@@ -1002,6 +1234,31 @@ if (trip.endDate < trip.startDate){
       };
       try {
         await persist("savePacking", item, "packing");
+
+// save learned item to PackingLibrary
+const api =
+localStorage.getItem(
+"trailplan_api_url"
+);
+
+if(api){
+
+await fetch(
+api +
+"?action=savePackingLibrary&data=" +
+encodeURIComponent(
+JSON.stringify({
+ id: Date.now(),
+ item: item.item,
+ category: item.category,
+ createdAt:
+ new Date()
+ .toISOString()
+}))
+);
+
+}
+
         byId("packingForm").reset();
         byId("packingQuantity").value = "1";
         showNotice("packingNotice", "Packing item added.");
@@ -1042,15 +1299,25 @@ byId("saveUrlBtn").disabled=true;
     
 function editActivity(id){
  const a=state.itinerary.find(x=>x.id===id); if(!a)return;
- byId("activityDate").value=a.date||"";
- byId("activityTime").value=a.time||"";
+ byId("activityId").value=a.id;
+ byId("activityDate").value=String(a.date||"").slice(0,10);
+ let t=String(a.time||"");
+ byId("activityTime").value=t.includes("1899")?t.slice(11,16):t.slice(0,5);
  byId("activityTitle").value=a.title||"";
  byId("activityLocation").value=a.location||"";
  byId("activityCategory").value=a.category||"Activity";
  byId("activityNotes").value=a.notes||"";
+ document.querySelector("#itineraryForm button").textContent="Update Activity";
  switchView("itinerary");
 }
 
+async function saveItinerary(event){
+event.preventDefault();
+const trip=selectedTrip(); if(!trip){showNotice("itineraryNotice","Select trip first",true);return;}
+const item={id:uid("ACT"),tripId:trip.id,date:byId("activityDate").value,time:byId("activityTime").value,title:byId("activityTitle").value,location:byId("activityLocation").value,category:byId("activityCategory").value,completed:false};
+await persist("saveItinerary",item,"itinerary");
+byId("itineraryForm").reset();
+}
 function switchView(id) {
       document.querySelectorAll(".nav-btn").forEach((button) => button.classList.toggle("active", button.dataset.view === id));
       document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === id));
@@ -1068,13 +1335,13 @@ function switchView(id) {
       if (select) selectTrip(select.dataset.selectTrip);
       if (edit) { editTrip(edit.dataset.editTrip); switchView("trips"); }
       if (activity) toggleActivity(activity.dataset.toggleActivity); if(editAct) editActivity(editAct.dataset.editActivity);
-      if (remove) deleteRecord(remove.dataset.delete, remove.dataset.id); if(deltrip) deleteRecord("trips", deltrip.dataset.deleteTrip);
+      if (remove) showDelete(()=>deleteRecord(remove.dataset.delete, remove.dataset.id)); if(deltrip) deleteRecord("trips", deltrip.dataset.deleteTrip);
     });
     byId("packingRows").addEventListener("change", (event) => {
       if (event.target.matches("[data-toggle-packing]")) togglePacking(event.target.dataset.togglePacking);
     });
     byId("tripForm").addEventListener("submit", saveTrip);
-    byId("itineraryForm").addEventListener("submit", saveActivity);
+    byId("itineraryForm").addEventListener("submit", saveItinerary);
     byId("expenseForm").addEventListener("submit", saveExpense);
     byId("packingForm").addEventListener("submit", savePacking);
     byId("resetTripBtn").addEventListener("click", resetTripForm);
@@ -1091,24 +1358,76 @@ function switchView(id) {
     
 window.addEventListener("online",()=>{
  setStatus("Connected to internet");
- byId("syncLabel").textContent = state.apiUrl ? "🟢 Online Sync":"🟡 Demo Mode";
+ byId("syncLabel").textContent = state.apiUrl ? "🟢 Online Mode":"🟡 Demo Mode";
 });
 window.addEventListener("offline",()=>{
  setStatus("Offline mode");
  byId("syncLabel").textContent="🔴 Offline";
 });
 
-async function start() {
-      byId("apiUrl").value = state.apiUrl;
-      byId("expenseDate").value = today();
-      await loadData();
-      if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-    }
-    
-window.addEventListener("online",()=>{setStatus("Back online"); setConnection(!!state.apiUrl);});
-window.addEventListener("offline",()=>{setStatus("Offline mode active"); setConnection(false);});
-
-    start();
+async function start(){
+byId("apiUrl").value=state.apiUrl;
+setConnection(false);
+if(state.apiUrl){
+ try{await request("getData");setConnection(true);byId("saveUrlBtn").innerHTML="✓ Connected";}
+ catch(e){setConnection(false);}
+}}
+start();
   </script>
-<div id="loading" class="loading"><div class="spinner"></div></div></body>
+<div id="loading" class="loading"><div class="spinner"></div></div>
+<script>
+function editExpense(id){
+ const e=(state.expenses||[]).find(x=>String(x.id)===String(id));
+ if(!e) return;
+ const set=(id,val)=>{const el=document.getElementById(id); if(el) el.value=val||'';}
+ set('expenseId',e.id);
+ set('expenseDate',e.date);
+ set('expenseDescription',e.description);
+ set('expenseAmount',e.amount);
+ set('expenseCategory',e.category);
+ const btn=[...document.querySelectorAll('button')].find(b=>b.innerText.includes('Save Expense'));
+ if(btn) btn.innerText='Update Expense';
+}
+document.addEventListener('click',ev=>{
+ const id=ev.target.dataset.editExpense;
+ if(id) editExpense(id);
+});
+</script>
+
+<script>
+document.addEventListener('click',e=>{
+ const id=e.target.dataset.editExpense;
+ if(!id) return;
+ const ex=(state.expenses||[]).find(x=>String(x.id)===String(id));
+ if(!ex) return;
+ ['expenseDate','expenseDescription','expenseAmount','expenseCategory'].forEach(k=>{
+   const el=document.getElementById(k);
+   const map={expenseDate:'date',expenseDescription:'description',expenseAmount:'amount',expenseCategory:'category'};
+   if(el) el.value=ex[map[k]]||'';
+ });
+ const hid=document.getElementById('expenseId'); if(hid) hid.value=ex.id;
+ const btn=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Save Expense'));
+ if(btn) btn.textContent='Update Expense';
+});
+</script>
+
+<div id="deleteModal" class="delete-modal">
+ <div class="delete-box">
+  <h3>Delete item?</h3>
+  <p>This cannot be undone.</p>
+  <div class="delete-actions">
+   <button onclick="closeDelete()">Cancel</button>
+   <button id="confirmDeleteBtn">Delete</button>
+  </div>
+ </div>
+</div>
+<script>
+let pendingDelete=null;
+function showDelete(fn){pendingDelete=fn;document.getElementById('deleteModal').style.display='flex'}
+function closeDelete(){document.getElementById('deleteModal').style.display='none'}
+document.addEventListener('click',e=>{
+ if(e.target.id==='confirmDeleteBtn'&&pendingDelete){pendingDelete();closeDelete();}
+});
+</script>
+</body>
 </html>
