@@ -541,28 +541,15 @@ cursor:pointer;
 .quicklist-scroll{
   flex:1;
   overflow-y:auto;
-  overflow-x:auto;
+  overflow-x:hidden;
 }
 
 .quicklist-table{
   width:100%;
   border-collapse:collapse;
-  table-layout:fixed;
-}
-.quicklist-table th:nth-child(1),
-.quicklist-table td:nth-child(1){
-  width:60px;
+  table-layout:auto;
 }
 
-.quicklist-table th:nth-child(2),
-.quicklist-table td:nth-child(2){
-  width:55%;
-}
-
-.quicklist-table th:nth-child(3),
-.quicklist-table td:nth-child(3){
-  width:45%;
-}
 .quicklist-table thead{
   position:sticky;
   top:0;
@@ -1613,6 +1600,7 @@ document.addEventListener('click',e=>{
 
 
 <script>
+
 function addSelectedPacking(){
 
   const checked = document.querySelectorAll('.preset-pack:checked');
@@ -1641,14 +1629,24 @@ function addSelectedPacking(){
 
     if(item){
 
-      state.packing.push({
+      const newItem = {
         id: 'PACK_' + Date.now() + '_' + Math.floor(Math.random()*9999),
         tripId: trip.id,
         item: item,
         category: category,
         quantity: 1,
         packed: false
-      });
+      };
+
+      state.packing.push(newItem);
+
+      // SAVE OFFLINE
+      saveDemoData();
+
+      // SAVE ONLINE
+      if(state.online && state.apiUrl){
+        request("savePacking", newItem).catch(console.error);
+      }
 
     }
 
@@ -1656,17 +1654,16 @@ function addSelectedPacking(){
 
   });
 
-  saveDemoData();
-
   renderPacking();
   renderAll();
 
   showNotice(
     'packingNotice',
-    'Selected items added to packing checklist.'
+    'Selected items added and saved.'
   );
 
 }
+
 </script>
 
 
