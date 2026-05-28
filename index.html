@@ -144,7 +144,7 @@
 
     .dashboard-grid, .two-col {
       display: grid;
-      grid-template-columns: 1fr 370px;
+      grid-template-columns: 1fr 620px;
       gap: 15px;
     }
     .section-title {
@@ -470,48 +470,209 @@ img,table{max-width:100%}
 
 <style>
 .pack-layout{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-.preset-table{border:1px solid #ddd;border-radius:12px;padding:12px;max-height:320px;overflow:auto}
-.preset-table table{width:100%}
-@media(max-width:768px){.pack-layout{grid-template-columns:1fr}}
-</style>
-<script>
-const packingTemplates=[
-['Passport','Essential',1],['Charger','Electronics',1],['Toothbrush','Toiletries',1],
-['Powerbank','Electronics',1],['Medicine','Health',1],['Shirt','Clothes',3]
-];
+.preset-table{
+border:1px solid #e5e7eb;
+border-radius:16px;
+padding:0;
+max-height:420px;
+overflow:auto;
+background:#fff;
+box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
 
+#quickListPackingBody tr{
+transition:background .2s ease;
+}
 
+#quickListPackingBody tr:hover{
+background:#f9fafb;
+}
 
-function addSelectedPacking(){
- const checked=document.querySelectorAll('.preset-pack:checked');
+#quickListPackingBody td{
+padding:12px 10px;
+border-bottom:1px solid #f1f5f9;
+font-size:14px;
+vertical-align:middle;
+}
 
- checked.forEach(cb=>{
-   const row=cb.closest('tr');
-   const cols=row.querySelectorAll('td');
+#quickListPackingBody tr:last-child td{
+border-bottom:none;
+}
 
-   const item=cols[1]?.innerText.trim();
-   const category=cols[2]?.innerText.trim();
-
-   const itemEl=document.getElementById('packingItem');
-   const catEl=document.getElementById('packingCategory');
-   const qtyEl=document.getElementById('packingQty');
-
-   if(itemEl) itemEl.value=item;
-   if(catEl) catEl.value=category;
-   if(qtyEl) qtyEl.value=1;
-
-   const form=document.getElementById('packingForm');
-   if(form){
-      form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
-   }
-
-   cb.checked=false;
- });
+#quickListPackingBody input[type="checkbox"]{
+width:18px;
+height:18px;
+accent-color:#0f766e;
+cursor:pointer;
 }
 
 
 
+.quicklist-wrapper{
+  margin-top:18px;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  height:520px;
+  width:100%;
+}
+
+.quicklist-header{
+  padding:18px;
+  border-bottom:1px solid #e5e7eb;
+  background:#f8fafc;
+}
+
+.quicklist-header h4{
+  margin:0;
+  font-size:22px;
+  font-weight:700;
+}
+
+.quicklist-header p{
+  margin-top:8px;
+  font-size:14px;
+  color:#6b7280;
+}
+
+.quicklist-scroll{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:auto;
+}
+
+.quicklist-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.quicklist-table th:nth-child(1),
+.quicklist-table td:nth-child(1){
+  width:60px;
+}
+
+.quicklist-table th:nth-child(2),
+.quicklist-table td:nth-child(2){
+  width:55%;
+}
+
+.quicklist-table th:nth-child(3),
+.quicklist-table td:nth-child(3){
+  width:45%;
+}
+.quicklist-table thead{
+  position:sticky;
+  top:0;
+  background:#fff;
+  z-index:5;
+}
+
+.quicklist-table th{
+  padding:16px;
+  text-align:left;
+  font-size:13px;
+  font-weight:700;
+  color:#64748b;
+  text-transform:uppercase;
+  border-bottom:1px solid #e5e7eb;
+  background:#f8fafc;
+  white-space:nowrap;
+}
+
+.quicklist-table td{
+  padding:18px 16px;
+  border-bottom:1px solid #f1f5f9;
+  font-size:16px;
+  white-space:normal;
+  word-break:break-word;
+}
+
+.quicklist-table td:nth-child(2){
+  min-width:240px;
+}
+
+.quicklist-table td:nth-child(3){
+  min-width:180px;
+}
+
+.quicklist-table tbody tr:hover{
+  background:#f9fafb;
+}
+
+.quicklist-table input[type="checkbox"]{
+  width:22px;
+  height:22px;
+  accent-color:#0f766e;
+  cursor:pointer;
+}
+
+.quicklist-footer{
+  padding:16px;
+  border-top:1px solid #e5e7eb;
+  background:#fff;
+}
+
+
+.quicklist-table input[type="checkbox"]{
+  width:20px;
+  height:20px;
+  accent-color:#0f766e;
+  cursor:pointer;
+}
+
+/* Footer */
+
+.quicklist-footer{
+  padding:16px;
+  border-top:1px solid #e5e7eb;
+  background:#fff;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+  .quicklist-wrapper{
+    height:420px;
+  }
+
+  .quicklist-table th,
+  .quicklist-table td{
+    padding:12px;
+    font-size:14px;
+  }
+
+}
+
+.preset-table table{width:100%}
+@media(max-width:768px){.pack-layout{grid-template-columns:1fr}}
+</style>
+<script>
+const packingTemplates = [];
+
+
+
+
+
+
+
+
+setTimeout(() => {
+
+  renderQuickListDynamic();
+
+},1500);
+
 </script>
+
+<script>
+window.data = window.data || {};
+window.result = window.result || {};
+</script>
+
 </head>
 <body>
   <header class="header">
@@ -612,7 +773,7 @@ function addSelectedPacking(){
             <div class="table-wrap">
               <table>
                 <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th></th></tr></thead>
-                <tbody id="expenseRows"></tbody>
+                <tbody id="quickListBody"></tbody>
               </table>
             </div>
           </div>
@@ -643,53 +804,45 @@ function addSelectedPacking(){
               <label><span class="label">Category</span><select id="packingCategory" class="field"><option>Essentials</option><option>Clothing</option><option>Electronics</option><option>Toiletries</option><option>Documents</option><option>Other</option></select></label>
               <label><span class="label">Quantity</span><input id="packingQuantity" class="field" type="number" min="1" step="1" value="1"></label>
               <button class="primary span-all" type="submit">Add To List</button>
-<div style="margin-top:18px;padding:14px;border:1px solid #ddd;border-radius:12px">
-<h4>Quick List</h4>
-<p style="font-size:12px;color:#666">Select common items and add multiple at once.</p>
+<div class="quicklist-wrapper">
 
-<table style="width:100%">
-<tr><th></th><th>Item</th><th>Category</th></tr>
-<tr><td><input class="preset-pack" type="checkbox"></td><td>Passport</td><td>Essentials</td></tr>
-<tr><td><input class="preset-pack" type="checkbox"></td><td>Charger</td><td>Electronics</td></tr>
-<tr><td><input class="preset-pack" type="checkbox"></td><td>Powerbank</td><td>Electronics</td></tr>
-<tr><td><input class="preset-pack" type="checkbox"></td><td>Medicine</td><td>Health</td></tr>
-<tr><td><input class="preset-pack" type="checkbox"></td><td>Toothbrush</td><td>Toiletries</td></tr>
-</table>
+  <div class="quicklist-header">
+    <h4>Quick List</h4>
+    <p>Select common items and add multiple at once.</p>
+  </div>
 
-<button type="button" onclick="addSelectedPacking()" style="margin-top:12px;width:100%">
-Add Selected
-</button>
+  <div class="quicklist-scroll">
+
+    <table class="quicklist-table">
+
+      <thead>
+        <tr>
+          <th style="width:50px"></th>
+          <th>Item</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+
+      <tbody id="quickListPackingBody"></tbody>
+
+    </table>
+
+  </div>
+
+  <div class="quicklist-footer">
+    <button
+      type="button"
+      onclick="addSelectedPacking()"
+      class="primary"
+      style="width:100%">
+      Add Selected
+    </button>
+  </div>
+
 </div>
 
 <script>
 
-
-function addSelectedPacking(){
- const checked=document.querySelectorAll('.preset-pack:checked');
-
- checked.forEach(cb=>{
-   const row=cb.closest('tr');
-   const cols=row.querySelectorAll('td');
-
-   const item=cols[1]?.innerText.trim();
-   const category=cols[2]?.innerText.trim();
-
-   const itemEl=document.getElementById('packingItem');
-   const catEl=document.getElementById('packingCategory');
-   const qtyEl=document.getElementById('packingQty');
-
-   if(itemEl) itemEl.value=item;
-   if(catEl) catEl.value=category;
-   if(qtyEl) qtyEl.value=1;
-
-   const form=document.getElementById('packingForm');
-   if(form){
-      form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
-   }
-
-   cb.checked=false;
- });
-}
 
 
 </script>
@@ -783,7 +936,7 @@ const byId = (id) => document.getElementById(id);
     }
 
     let state = {
-      trips: [], itinerary: [], expenses: [], packing: [],
+      trips: [], itinerary: [], expenses: [], packing: [], packingLibrary: [],
       selectedTripId: localStorage.getItem(STORAGE_KEYS.selectedTrip) || "",
       apiUrl: localStorage.getItem(STORAGE_KEYS.apiUrl) || "",
       online: false
@@ -847,38 +1000,53 @@ else{dot.classList.add("offline");label.innerHTML="🔴 Offline Mode";}
       }));
     }
 
-    async function request(action, payload) {
-      if (!state.apiUrl) throw new Error("No Google Sheets URL configured.");
-      return new Promise((resolve, reject) => {
-        const callback = "trailPlanCallback_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
-        const params = new URLSearchParams({ action, callback });
-        if (payload) params.set("data", JSON.stringify(payload));
-        const script = document.createElement("script");
-        const timeout = setTimeout(() => { cleanup(); reject(new Error("Google Sheets connection timed out.")); }, 12000);
-        function cleanup() {
-          clearTimeout(timeout);
-          delete window[callback];
-          script.remove();
-        }
-        window[callback] = (result) => {
-          cleanup();
-          result.ok ? resolve(result) : reject(new Error(result.error || "Database error."));
-        };
-        script.onerror = () => { cleanup(); reject(new Error("Google Sheets request failed.")); };
-        script.src = state.apiUrl + "?" + params.toString();
-        document.head.appendChild(script);
-      });
-    }
+    async function request(action, payload){
+
+  if(!state.apiUrl)
+    throw new Error("No Google Sheets URL configured.");
+
+  let url =
+    state.apiUrl +
+    "?action=" + encodeURIComponent(action);
+
+  if(payload){
+    url +=
+      "&data=" +
+      encodeURIComponent(
+        JSON.stringify(payload)
+      );
+  }
+
+  const response =
+    await fetch(url);
+
+  const result =
+    await response.json();
+
+  if(!result.ok){
+    throw new Error(
+      result.error || "Database error."
+    );
+  }
+
+  return result;
+}
 
     async function loadData(){
- if(!state.apiUrl){setConnection(false);setStatus("Connect Google Sheets first");renderAll();return;}
+ if(!state.apiUrl){setConnection(false);setStatus("Connect Google Sheets first");renderAll();
+
+return;}
  try{
   const r=await request("getData");
   state.trips=r.trips||[]; state.itinerary=r.itinerary||[];
-  state.expenses=r.expenses||[]; state.packing=r.packing||[];
+  state.expenses=r.expenses||[]; 
+  state.packing=r.packing||[];
+  state.packingLibrary=r.packingLibrary||[];
   setConnection(true);
  }catch(e){setConnection(false);showNotice("setupNotice",e.message,true);}
  ensureSelectedTrip(); renderAll();
+
+
 }
 function ensureSelectedTrip() {
       if (!state.trips.some((trip) => trip.id === state.selectedTripId)) state.selectedTripId = state.trips[0] ? state.trips[0].id : "";
@@ -888,9 +1056,16 @@ function ensureSelectedTrip() {
       state.selectedTripId = id;
       localStorage.setItem(STORAGE_KEYS.selectedTrip, id);
       renderAll();
+
+
     }
 
-    function renderAll() {
+    
+
+const _oldRenderAll=renderAll;
+renderAll=function(){_oldRenderAll();setTimeout(renderQuickListDynamic,50);}
+
+function renderAll() {
       renderDashboard();
       renderTrips();
       renderItinerary();
@@ -904,11 +1079,11 @@ function ensureSelectedTrip() {
     function renderDashboard() {
       const trip = selectedTrip();
       if (!trip) {
-        byId("hero").innerHTML = '<div><h2>Start your first journey</h2><p>Create a trip to track schedule, expenses and packing.</p></div><button class="primary" data-go="trips">Plan a trip</button>';
+        if(byId("hero")) byId("hero").innerHTML = '<div><h2>Start your first journey</h2><p>Create a trip to track schedule, expenses and packing.</p></div><button class="primary" data-go="trips">Plan a trip</button>';
         ["budgetStat", "spentStat", "activityStat"].forEach((id) => byId(id).textContent = "-");
         byId("packingStat").textContent = "0%";
-        byId("upcomingRows").innerHTML = '<div class="empty">No activities yet.</div>';
-        byId("dashboardTrips").innerHTML = '<div class="empty">No trips yet.</div>';
+        if(byId("upcomingRows")) byId("upcomingRows").innerHTML = '<div class="empty">No activities yet.</div>';
+        if(byId("dashboardTrips")) byId("dashboardTrips").innerHTML = '<div class="empty">No trips yet.</div>';
         return;
       }
       const days = Math.ceil((new Date(trip.startDate) - new Date(today())) / 86400000);
@@ -916,7 +1091,7 @@ function ensureSelectedTrip() {
       const activities = forTrip("itinerary");
       const packing = forTrip("packing");
       const ready = packing.length ? Math.round(packing.filter((item) => item.packed).length / packing.length * 100) : 0;
-      byId("hero").innerHTML = `
+      if(byId("hero")) byId("hero").innerHTML = `
         <div><span class="pill">${escapeHtml(trip.status)}</span><h2>${escapeHtml(trip.destination)}</h2>
         <p>${friendlyDate(trip.startDate)} - ${friendlyDate(trip.endDate)} | ${Number(trip.travelers)} traveler(s)</p></div>
         <div class="countdown"><strong>${days > 0 ? days : days === 0 ? "Today" : "Now"}</strong><span>${days > 0 ? "days until departure" : "travel window"}</span></div>`;
@@ -929,8 +1104,8 @@ function ensureSelectedTrip() {
       byId("packingStat").textContent = ready + "%";
       byId("packingNote").textContent = packing.filter((item) => item.packed).length + " of " + packing.length + " packed";
       const upcoming = activities.slice().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).slice(0, 4);
-      byId("upcomingRows").innerHTML = upcoming.length ? upcoming.map(activityCard).join("") : '<div class="empty">Add your first activity to build the itinerary.</div>';
-      byId("dashboardTrips").innerHTML = state.trips.slice(0, 4).map((item) => tripCard(item, false)).join("");
+      if(byId("upcomingRows")) byId("upcomingRows").innerHTML = upcoming.length ? upcoming.map(activityCard).join("") : '<div class="empty">Add your first activity to build the itinerary.</div>';
+      if(byId("dashboardTrips")) byId("dashboardTrips").innerHTML = state.trips.slice(0, 4).map((item) => tripCard(item, false)).join("");
     }
     function tripCard(trip, editable) {
       const chosen = trip.id === state.selectedTripId ? " selected" : "";
@@ -944,7 +1119,7 @@ function ensureSelectedTrip() {
     }
     function renderTrips() {
       byId("tripCount").textContent = state.trips.length + " trip(s)";
-      byId("tripRows").innerHTML = state.trips.length ? state.trips.map((trip) => tripCard(trip, true)).join("") : '<div class="empty">Create a trip to start planning.</div>';
+      if(byId("tripRows")) byId("tripRows").innerHTML = state.trips.length ? state.trips.map((trip) => tripCard(trip, true)).join("") : '<div class="empty">Create a trip to start planning.</div>';
     }
     function activityCard(item) {
       return `<article class="timeline-item${item.completed ? " done" : ""}">
@@ -956,7 +1131,7 @@ function ensureSelectedTrip() {
     
 function renderItinerary() {
  const rows=forTrip("itinerary").slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
- if(!rows.length){ byId("itineraryRows").innerHTML='<div class="empty">No itinerary yet.</div>'; return; }
+ if(!rows.length){ if(byId("itineraryRows")) byId("itineraryRows").innerHTML ='<div class="empty">No itinerary yet.</div>'; return; }
  let groups={}; rows.forEach(r=>{(groups[r.date]??=[]).push(r);});
  let day=0, htmlOut='';
  Object.entries(groups).forEach(([date,items])=>{
@@ -974,7 +1149,7 @@ function renderItinerary() {
    });
    htmlOut += '</details>';
  });
- byId("itineraryRows").innerHTML=htmlOut;
+ if(byId("itineraryRows")) byId("itineraryRows").innerHTML =htmlOut;
 }
 function renderBudget() {
       const trip = selectedTrip();
@@ -985,13 +1160,13 @@ function renderBudget() {
       byId("budgetSummary").textContent = trip ? currency(total, trip) + " spent of " + currency(budget, trip) + " budget (" + used + "%)" : "Select a trip to track expenses.";
       byId("budgetFill").style.width = Math.min(100, used) + "%";
       byId("budgetFill").classList.toggle("high", used > 100);
-      byId("expenseRows").innerHTML = expenses.length ? expenses.map((item) => `
+      if(byId("expenseRows")) byId("expenseRows").innerHTML = expenses.length ? expenses.map((item) => `
         <tr><td>${friendlyDate(item.date)}</td><td>${escapeHtml(item.description)}</td><td>${escapeHtml(item.category)}</td>
         <td>${currency(item.amount, trip)}</td><td><button class="danger small-btn" data-edit-expense="${escapeHtml(item.id)}">Edit</button> <button class="danger small-btn" data-delete="expenses" data-id="${escapeHtml(item.id)}">Delete</button></td></tr>`).join("") : '<tr><td colspan="5">No expenses saved.</td></tr>';
     }
     function renderPacking() {
       const packing = forTrip("packing");
-      byId("packingRows").innerHTML = packing.length ? packing.map((item) => `
+      if(byId("packingRows")) byId("packingRows").innerHTML = packing.length ? packing.map((item) => `
         <article class="packing-row">
           <input class="check" type="checkbox" data-toggle-packing="${escapeHtml(item.id)}" ${item.packed ? "checked" : ""} aria-label="Packed ${escapeHtml(item.item)}">
           <div><span class="item-title">${escapeHtml(item.item)}${Number(item.quantity) > 1 ? " x" + Number(item.quantity) : ""}</span><span class="tiny">${escapeHtml(item.category)}</span></div>
@@ -1000,6 +1175,11 @@ function renderBudget() {
     }
 
     async function persist(action, record, localCollection) {
+      console.log(
+"persist:",
+action,
+data
+);
       if (state.online) {
         await request(action, record);
         await loadData();
@@ -1010,6 +1190,8 @@ function renderBudget() {
       if (existing >= 0) list[existing] = record; else list.unshift(record);
       saveDemoData();
       renderAll();
+
+
     }
     async function deleteRecord(collection,id){
  try{
@@ -1025,6 +1207,8 @@ function renderBudget() {
    }
    state[collection]=state[collection].filter(x=>x.id!==id);
    saveDemoData(); renderAll();
+
+
  }catch(error){ setStatus(error.message); }
 }
 
@@ -1166,6 +1350,8 @@ saveDemoData();
 
 renderAll();
 
+
+
 showNotice(
 
 "tripNotice",
@@ -1235,30 +1421,17 @@ async function toggleActivity(id) {
       try {
         await persist("savePacking", item, "packing");
 
-// save learned item to PackingLibrary
-const api =
-localStorage.getItem(
-"trailplan_api_url"
+// also save learned item into PackingLibrary
+await persist(
+ "savePackingLibrary",
+ {
+   id: uid("LIB"),
+   item: item.item,
+   category: item.category,
+   createdAt: new Date().toISOString()
+ },
+ "packingLibrary"
 );
-
-if(api){
-
-await fetch(
-api +
-"?action=savePackingLibrary&data=" +
-encodeURIComponent(
-JSON.stringify({
- id: Date.now(),
- item: item.item,
- category: item.category,
- createdAt:
- new Date()
- .toISOString()
-}))
-);
-
-}
-
         byId("packingForm").reset();
         byId("packingQuantity").value = "1";
         showNotice("packingNotice", "Packing item added.");
@@ -1293,7 +1466,12 @@ byId("saveUrlBtn").disabled=true;
         await loadData();
       } catch (error) {
         state.apiUrl = previous;
-        showNotice("setupNotice", "Connection failed: " + error.message + " Use an /exec deployment set to Execute as Me and Who has access Anyone.", true);
+        console.error("Connect error:", error);
+showNotice(
+  "setupNotice",
+  "Connection failed: " + (error && error.message ? error.message : "Unknown error"),
+  true
+);
       }
     }
     
@@ -1369,7 +1547,7 @@ async function start(){
 byId("apiUrl").value=state.apiUrl;
 setConnection(false);
 if(state.apiUrl){
- try{await request("getData");setConnection(true);byId("saveUrlBtn").innerHTML="✓ Connected";}
+ try{await request("getData");setConnection(true);if(byId("saveUrlBtn")) byId("saveUrlBtn").innerHTML ="✓ Connected";}
  catch(e){setConnection(false);}
 }}
 start();
@@ -1429,5 +1607,121 @@ document.addEventListener('click',e=>{
  if(e.target.id==='confirmDeleteBtn'&&pendingDelete){pendingDelete();closeDelete();}
 });
 </script>
+
+
+
+
+
+<script>
+function addSelectedPacking(){
+
+  const checked = document.querySelectorAll('.preset-pack:checked');
+
+  if(!checked.length){
+    alert('Please select at least one item.');
+    return;
+  }
+
+  const trip = selectedTrip();
+
+  if(!trip){
+    alert('Please select or create a trip first.');
+    return;
+  }
+
+  checked.forEach(cb => {
+
+    const row = cb.closest('tr');
+    if(!row) return;
+
+    const tds = row.querySelectorAll('td');
+
+    const item = (tds[1]?.innerText || '').trim();
+    const category = (tds[2]?.innerText || 'Other').trim();
+
+    if(item){
+
+      state.packing.push({
+        id: 'PACK_' + Date.now() + '_' + Math.floor(Math.random()*9999),
+        tripId: trip.id,
+        item: item,
+        category: category,
+        quantity: 1,
+        packed: false
+      });
+
+    }
+
+    cb.checked = false;
+
+  });
+
+  saveDemoData();
+
+  renderPacking();
+  renderAll();
+
+  showNotice(
+    'packingNotice',
+    'Selected items added to packing checklist.'
+  );
+
+}
+</script>
+
+
+<script>
+function renderQuickListDynamic(){
+
+  const body =
+    document.getElementById(
+      "quickListPackingBody"
+    );
+
+  if(!body) return;
+
+  const library =
+    Array.isArray(state.packingLibrary)
+    ? state.packingLibrary
+    : [];
+
+  if(!library.length){
+    body.innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align:center;color:#777;padding:12px">
+          No Packing Library items yet
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML =
+    library.map(item => `
+      <tr>
+        <td>
+          <input
+            class="preset-pack"
+            type="checkbox"
+          >
+        </td>
+
+        <td>${item.item || ""}</td>
+
+        <td>${item.category || "Other"}</td>
+      </tr>
+    `).join("");
+
+}
+
+const oldRenderAll = renderAll;
+
+renderAll = function(){
+  oldRenderAll();
+  setTimeout(renderQuickListDynamic,100);
+}
+</script>
+
+
 </body>
 </html>
