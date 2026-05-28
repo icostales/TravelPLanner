@@ -660,6 +660,383 @@ window.data = window.data || {};
 window.result = window.result || {};
 </script>
 
+
+<style>
+
+@keyframes popIn{
+  0%{
+    transform:scale(.8);
+    opacity:0;
+  }
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+}
+
+@keyframes glowPulse{
+  0%{
+    box-shadow:0 0 0 rgba(15,118,110,0);
+  }
+  50%{
+    box-shadow:0 0 18px rgba(15,118,110,.35);
+  }
+  100%{
+    box-shadow:0 0 0 rgba(15,118,110,0);
+  }
+}
+
+.packing-added{
+  animation:
+    popIn .35s ease,
+    glowPulse 1s ease;
+  border-color:#14b8a6 !important;
+  background:#f0fdfa !important;
+}
+
+.quicklist-success{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  background:#0f766e;
+  color:#fff;
+  padding:14px 18px;
+  border-radius:14px;
+  font-weight:600;
+  z-index:99999;
+  animation:popIn .25s ease;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+</style>
+
+
+<style>
+
+/* MOBILE PACKING UI FIX */
+
+@media (max-width: 768px){
+
+  /* STACK LAYOUT */
+
+  .two-col{
+    grid-template-columns:1fr !important;
+  }
+
+  /* PACKING ROW */
+
+  .packing-row{
+    display:flex !important;
+    align-items:flex-start;
+    gap:14px;
+    padding:16px !important;
+    position:relative;
+  }
+
+  .packing-row .danger{
+    width:100%;
+    margin-top:12px;
+    border-radius:12px;
+  }
+
+  .packing-row > div{
+    flex:1;
+    min-width:0;
+  }
+
+  .packing-row .item-title{
+    font-size:18px;
+    line-height:1.3;
+    word-break:break-word;
+  }
+
+  .packing-row .tiny{
+    font-size:14px;
+    margin-top:4px;
+  }
+
+  .packing-row input[type="checkbox"]{
+    width:22px;
+    height:22px;
+    margin-top:4px;
+    flex-shrink:0;
+  }
+
+  /* QUICK LIST */
+
+  .quicklist-wrapper{
+    height:420px !important;
+    margin-top:22px !important;
+  }
+
+  .quicklist-header h4{
+    font-size:28px !important;
+  }
+
+  .quicklist-header p{
+    font-size:15px !important;
+    line-height:1.5;
+  }
+
+  .quicklist-table{
+    min-width:100%;
+  }
+
+  .quicklist-table th{
+    font-size:12px !important;
+    padding:12px 10px !important;
+  }
+
+  .quicklist-table td{
+    font-size:15px !important;
+    padding:14px 10px !important;
+  }
+
+  .quicklist-table td:nth-child(2){
+    width:55%;
+  }
+
+  .quicklist-table td:nth-child(3){
+    width:45%;
+  }
+
+  .quicklist-table input[type="checkbox"]{
+    width:20px;
+    height:20px;
+  }
+
+  /* BUTTON */
+
+  .quicklist-footer button{
+    height:54px;
+    font-size:18px;
+    border-radius:14px;
+  }
+
+}
+
+</style>
+
+
+<style>
+
+/* RESPONSIVE QUICK LIST */
+
+@media (max-width:768px){
+
+  .quicklist-wrapper{
+    height:auto !important;
+    max-height:none !important;
+  }
+
+  .quicklist-scroll{
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+  }
+
+  .quicklist-table,
+  .quicklist-table thead,
+  .quicklist-table tbody,
+  .quicklist-table th,
+  .quicklist-table td,
+  .quicklist-table tr{
+    display:block;
+    width:100%;
+  }
+
+  /* Hide desktop header */
+
+  .quicklist-table thead{
+    display:none;
+  }
+
+  /* Mobile card rows */
+
+  .quicklist-table tr{
+    padding:14px;
+    border-bottom:1px solid #e5e7eb;
+    background:#fff;
+  }
+
+  .quicklist-table td{
+    border:none;
+    padding:4px 0 !important;
+    font-size:15px !important;
+  }
+
+  /* Checkbox */
+
+  .quicklist-table td:first-child{
+    margin-bottom:10px;
+  }
+
+  .quicklist-table input[type="checkbox"]{
+    width:22px;
+    height:22px;
+  }
+
+  /* Item */
+
+  .quicklist-table td:nth-child(2){
+    font-weight:700;
+    font-size:17px !important;
+    color:#111827;
+  }
+
+  /* Category */
+
+  .quicklist-table td:nth-child(3){
+    color:#6b7280;
+    font-size:14px !important;
+  }
+
+  /* Sticky footer */
+
+  .quicklist-footer{
+    position:sticky;
+    bottom:0;
+    background:#fff;
+    padding:14px;
+    border-top:1px solid #e5e7eb;
+  }
+
+  .quicklist-footer button{
+    height:54px;
+    font-size:18px;
+    border-radius:14px;
+  }
+
+}
+
+</style>
+
+
+<style>
+
+/* FIX PACKING CARD TEXT WRAP */
+
+@media (max-width:768px){
+
+  .packing-row{
+    display:grid !important;
+    grid-template-columns:32px 1fr !important;
+    align-items:start !important;
+    gap:12px !important;
+  }
+
+  .packing-row > div{
+    min-width:0 !important;
+    width:100% !important;
+  }
+
+  .packing-row .item-title{
+    display:block !important;
+    width:100% !important;
+    white-space:normal !important;
+    word-break:break-word !important;
+    overflow-wrap:anywhere !important;
+    line-height:1.35 !important;
+    font-size:18px !important;
+  }
+
+  .packing-row .tiny{
+    display:block !important;
+    margin-top:6px !important;
+    font-size:14px !important;
+  }
+
+  .packing-row .danger{
+    width:100% !important;
+    margin-top:14px !important;
+    grid-column:2 !important;
+  }
+
+}
+
+</style>
+
+
+<style>
+
+/* SMALLER DELETE BUTTON MOBILE FIX */
+
+@media (max-width:768px){
+
+  .packing-row .danger{
+    width:auto !important;
+    min-width:90px !important;
+    max-width:120px !important;
+    padding:10px 14px !important;
+    margin-top:12px !important;
+    justify-self:start !important;
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+  }
+
+}
+
+</style>
+
+
+<style>
+
+/* FINAL QUICKLIST CATEGORY FIX */
+
+.quicklist-table{
+  width:100% !important;
+  border-collapse:collapse;
+  table-layout:fixed !important;
+}
+
+.quicklist-table th:nth-child(1),
+.quicklist-table td:nth-child(1){
+  width:52px;
+}
+
+.quicklist-table th:nth-child(2),
+.quicklist-table td:nth-child(2){
+  width:58%;
+}
+
+.quicklist-table th:nth-child(3),
+.quicklist-table td:nth-child(3){
+  width:42%;
+  display:table-cell !important;
+}
+
+.quicklist-table td:nth-child(3){
+  color:#64748b;
+  white-space:nowrap;
+}
+
+.quicklist-scroll{
+  overflow-y:auto;
+  overflow-x:hidden !important;
+}
+
+@media(max-width:768px){
+
+  .quicklist-table{
+    table-layout:fixed !important;
+  }
+
+  .quicklist-table th:nth-child(2),
+  .quicklist-table td:nth-child(2){
+    width:55%;
+  }
+
+  .quicklist-table th:nth-child(3),
+  .quicklist-table td:nth-child(3){
+    width:45%;
+    display:table-cell !important;
+    font-size:13px !important;
+  }
+
+}
+
+</style>
+
 </head>
 <body>
   <header class="header">
@@ -1449,6 +1826,7 @@ await persist(
         localStorage.setItem(STORAGE_KEYS.apiUrl, entered);
 byId("saveUrlBtn").textContent="✓ Connected";
 byId("saveUrlBtn").disabled=true;
+        sessionStorage.setItem("trailplan-connected","true");
         showNotice("setupNotice", "Google Sheets database connected.");
         await loadData();
       } catch (error) {
@@ -1462,27 +1840,161 @@ showNotice(
       }
     }
     
+
 function editActivity(id){
- const a=state.itinerary.find(x=>x.id===id); if(!a)return;
- byId("activityId").value=a.id;
- byId("activityDate").value=String(a.date||"").slice(0,10);
- let t=String(a.time||"");
- byId("activityTime").value=t.includes("1899")?t.slice(11,16):t.slice(0,5);
- byId("activityTitle").value=a.title||"";
- byId("activityLocation").value=a.location||"";
- byId("activityCategory").value=a.category||"Activity";
- byId("activityNotes").value=a.notes||"";
- document.querySelector("#itineraryForm button").textContent="Update Activity";
+
+ const a = state.itinerary.find(
+   x => String(x.id) === String(id)
+ );
+
+ if(!a) return;
+
+ byId("activityId").value = a.id;
+
+ byId("activityDate").value =
+   String(a.date || "").slice(0,10);
+
+ let t = String(a.time || "");
+
+ byId("activityTime").value =
+   t.includes("1899")
+   ? t.slice(11,16)
+   : t.slice(0,5);
+
+ byId("activityTitle").value =
+   a.title || "";
+
+ byId("activityLocation").value =
+   a.location || "";
+
+ byId("activityCategory").value =
+   a.category || "Activity";
+
+ byId("activityNotes").value =
+   a.notes || "";
+
+ const btn =
+   document.querySelector("#itineraryForm button");
+
+ if(btn){
+   btn.textContent = "Update Activity";
+ }
+
  switchView("itinerary");
+
 }
 
+
+
 async function saveItinerary(event){
-event.preventDefault();
-const trip=selectedTrip(); if(!trip){showNotice("itineraryNotice","Select trip first",true);return;}
-const item={id:uid("ACT"),tripId:trip.id,date:byId("activityDate").value,time:byId("activityTime").value,title:byId("activityTitle").value,location:byId("activityLocation").value,category:byId("activityCategory").value,completed:false};
-await persist("saveItinerary",item,"itinerary");
-byId("itineraryForm").reset();
+
+  if(event) event.preventDefault();
+
+  const trip = selectedTrip();
+
+  if(!trip){
+    showNotice("itineraryNotice","Select trip first",true);
+    return;
+  }
+
+  // IMPORTANT: use hidden field as source of truth
+  const existingId =
+    byId("activityId").value.trim();
+
+  const item = {
+
+    id: existingId || uid("ACT"),
+
+    tripId: trip.id,
+
+    date: byId("activityDate").value,
+
+    time: byId("activityTime").value,
+
+    title: byId("activityTitle").value,
+
+    location: byId("activityLocation").value,
+
+    category: byId("activityCategory").value,
+
+    notes: byId("activityNotes").value,
+
+    completed:false
+
+  };
+
+  try{
+
+    // UPDATE LOCAL ARRAY INSTEAD OF PUSHING
+    const index =
+      state.itinerary.findIndex(
+        x => String(x.id) === String(item.id)
+      );
+
+    if(index > -1){
+
+      state.itinerary[index] = {
+        ...state.itinerary[index],
+        ...item
+      };
+
+    }else{
+
+      state.itinerary.unshift(item);
+
+    }
+
+    // SAVE ONLINE
+    if(state.online){
+
+      await request(
+        "saveItinerary",
+        item
+      );
+
+      await loadData();
+
+    }else{
+
+      saveDemoData();
+
+    }
+
+    renderAll();
+
+    // RESET FORM
+    byId("itineraryForm").reset();
+
+    byId("activityId").value = "";
+
+    const btn =
+      document.querySelector("#itineraryForm button");
+
+    if(btn){
+      btn.textContent = "Add To Itinerary";
+    }
+
+    showNotice(
+      "itineraryNotice",
+      existingId
+        ? "Activity updated."
+        : "Activity added."
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    showNotice(
+      "itineraryNotice",
+      error.message,
+      true
+    );
+
+  }
+
 }
+
 function switchView(id) {
       document.querySelectorAll(".nav-btn").forEach((button) => button.classList.toggle("active", button.dataset.view === id));
       document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === id));
@@ -1515,6 +2027,7 @@ function switchView(id) {
     byId("demoBtn").addEventListener("click", () => {
       localStorage.removeItem(STORAGE_KEYS.apiUrl);
       state.apiUrl = "";
+      sessionStorage.removeItem("trailplan-connected");
       byId("apiUrl").value = "";
       loadData();
       showNotice("setupNotice", "Demo mode active. Plans stay on this device.");
@@ -1530,14 +2043,86 @@ window.addEventListener("offline",()=>{
  byId("syncLabel").textContent="🔴 Offline";
 });
 
+
+
+
+
 async function start(){
-byId("apiUrl").value=state.apiUrl;
-setConnection(false);
-if(state.apiUrl){
- try{await request("getData");setConnection(true);if(byId("saveUrlBtn")) byId("saveUrlBtn").innerHTML ="✓ Connected";}
- catch(e){setConnection(false);}
-}}
+
+  byId("apiUrl").value = state.apiUrl;
+
+  setConnection(false);
+
+  if(byId("saveUrlBtn")){
+    byId("saveUrlBtn").textContent = "Connect";
+    byId("saveUrlBtn").disabled = false;
+  }
+
+  // Only reconnect if session is active
+  const activeSession =
+    sessionStorage.getItem("trailplan-connected");
+
+  if(state.apiUrl && activeSession === "true"){
+
+    try{
+
+      // REAL VALIDATION
+      const response = await request("getData");
+
+      // VALID ONLY IF REAL DATA EXISTS
+      if(response){
+
+        setConnection(true);
+
+        state.online = true;
+
+        if(byId("saveUrlBtn")){
+          byId("saveUrlBtn").textContent = "✓ Connected";
+          byId("saveUrlBtn").disabled = true;
+        }
+
+        // LOAD REAL SHEET DATA
+        await loadData();
+
+        setStatus("Connected to Google Sheets");
+
+      }else{
+
+        throw new Error("Invalid response");
+
+      }
+
+    }catch(e){
+
+      console.error(e);
+
+      // FULL RESET IF FAILED
+      setConnection(false);
+
+      state.online = false;
+
+      sessionStorage.removeItem("trailplan-connected");
+
+      if(byId("saveUrlBtn")){
+        byId("saveUrlBtn").textContent = "Connect";
+        byId("saveUrlBtn").disabled = false;
+      }
+
+      setStatus("Disconnected");
+
+    }
+
+  }
+
+  renderAll();
+
+}
+
 start();
+
+
+
+
   </script>
 <div id="loading" class="loading"><div class="spinner"></div></div>
 <script>
@@ -1601,6 +2186,7 @@ document.addEventListener('click',e=>{
 
 <script>
 
+
 function addSelectedPacking(){
 
   const checked = document.querySelectorAll('.preset-pack:checked');
@@ -1616,6 +2202,8 @@ function addSelectedPacking(){
     alert('Please select or create a trip first.');
     return;
   }
+
+  let addedCount = 0;
 
   checked.forEach(cb => {
 
@@ -1640,13 +2228,13 @@ function addSelectedPacking(){
 
       state.packing.push(newItem);
 
-      // SAVE OFFLINE
       saveDemoData();
 
-      // SAVE ONLINE
       if(state.online && state.apiUrl){
         request("savePacking", newItem).catch(console.error);
       }
+
+      addedCount++;
 
     }
 
@@ -1657,12 +2245,45 @@ function addSelectedPacking(){
   renderPacking();
   renderAll();
 
+  // Animate newly added items
+  setTimeout(()=>{
+
+    const rows = document.querySelectorAll('.packing-row');
+
+    rows.forEach((row,index)=>{
+
+      if(index < addedCount){
+
+        row.classList.add('packing-added');
+
+        setTimeout(()=>{
+          row.classList.remove('packing-added');
+        },1400);
+
+      }
+
+    });
+
+  },100);
+
+  // Success toast
+  const toast = document.createElement('div');
+  toast.className = 'quicklist-success';
+  toast.innerHTML = '✓ Items added to packing checklist';
+
+  document.body.appendChild(toast);
+
+  setTimeout(()=>{
+    toast.remove();
+  },2200);
+
   showNotice(
     'packingNotice',
     'Selected items added and saved.'
   );
 
 }
+
 
 </script>
 
